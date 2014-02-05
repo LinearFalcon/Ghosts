@@ -59,7 +59,7 @@ public abstract class AbstractStateChangerAllTest extends AbstractStateChangerTe
 	}
 	
 	@Test
-	public void testGoodCaptureGood() {
+	public void testBlackGoodCaptureWhiteGood() {
 		Move move = new Move(new Position(2, 2), new Position(2, 3));
 		start.setPiece(2, 2, new Piece(SquareType.BLACK, PieceKind.good));
 		start.setPiece(2, 3, new Piece(SquareType.WHITE, PieceKind.good));
@@ -76,7 +76,23 @@ public abstract class AbstractStateChangerAllTest extends AbstractStateChangerTe
 	}
 	
 	@Test
-	public void testGoodCaptureEvil() {
+	public void testWhiteGoodCaptureBlackGood() {
+		Move move = new Move(new Position(2, 2), new Position(2, 3));
+		start.setPiece(2, 2, new Piece(SquareType.WHITE, PieceKind.good));
+		start.setPiece(2, 3, new Piece(SquareType.BLACK, PieceKind.good));
+		start.setPiece(4, 2, new Piece(SquareType.WHITE, PieceKind.evil));
+		start.setPiece(4, 4, new Piece(SquareType.BLACK, PieceKind.evil));
+		start.setPiece(1, 3, new Piece(SquareType.BLACK, PieceKind.good));
+		State expected = start.copy();
+		expected.setTurn(SquareType.BLACK);
+		expected.setPiece(2, 2, new Piece(SquareType.EMPTY, null));
+		expected.setPiece(2, 3, new Piece(SquareType.WHITE, PieceKind.good));
+		stateChanger.makeMove(start, move);
+		assertEquals(expected, start);
+	}
+	
+	@Test
+	public void testWhiteGoodCaptureBlackEvil() {
 		Move move = new Move(new Position(4, 5), new Position(4, 4));
 		start.setPiece(4, 5, new Piece(SquareType.WHITE, PieceKind.good));
 		start.setPiece(4, 4, new Piece(SquareType.BLACK, PieceKind.evil));
@@ -90,9 +106,26 @@ public abstract class AbstractStateChangerAllTest extends AbstractStateChangerTe
 		stateChanger.makeMove(start, move);
 		assertEquals(expected, start);
 	}
+	
+	@Test
+	public void testBlackGoodCaptureWhiteEvil() {
+		Move move = new Move(new Position(4, 5), new Position(4, 4));
+		start.setPiece(4, 5, new Piece(SquareType.BLACK, PieceKind.good));
+		start.setPiece(4, 4, new Piece(SquareType.WHITE, PieceKind.evil));
+		start.setPiece(2, 3, new Piece(SquareType.WHITE, PieceKind.good));
+		start.setPiece(1, 5, new Piece(SquareType.WHITE, PieceKind.evil));
+		start.setPiece(2, 5, new Piece(SquareType.BLACK, PieceKind.evil));
+		start.setTurn(SquareType.BLACK);
+		State expected = start.copy();
+		expected.setTurn(SquareType.WHITE);
+		expected.setPiece(4, 5, new Piece(SquareType.EMPTY, null));
+		expected.setPiece(4, 4, new Piece(SquareType.BLACK, PieceKind.good));
+		stateChanger.makeMove(start, move);
+		assertEquals(expected, start);
+	}
 
 	@Test
-	public void testEvilCaptureGood() {
+	public void testBlackEvilCaptureWhiteGood() {
 		Move move = new Move(new Position(3, 2), new Position(3, 3));
 		start.setPiece(3, 2, new Piece(SquareType.BLACK, PieceKind.evil));
 		start.setPiece(3, 3, new Piece(SquareType.WHITE, PieceKind.good));
@@ -109,7 +142,23 @@ public abstract class AbstractStateChangerAllTest extends AbstractStateChangerTe
 	}
 	
 	@Test
-	public void testEvilCaptureEvil() {
+	public void testWhiteEvilCaptureBlackGood() {
+		Move move = new Move(new Position(3, 2), new Position(3, 3));
+		start.setPiece(3, 2, new Piece(SquareType.WHITE, PieceKind.evil));
+		start.setPiece(3, 3, new Piece(SquareType.BLACK, PieceKind.good));
+		start.setPiece(4, 2, new Piece(SquareType.WHITE, PieceKind.good));
+		start.setPiece(4, 4, new Piece(SquareType.BLACK, PieceKind.evil));
+		start.setPiece(1, 3, new Piece(SquareType.BLACK, PieceKind.good));
+		State expected = start.copy();
+		expected.setTurn(SquareType.BLACK);
+		expected.setPiece(3, 2, new Piece(SquareType.EMPTY, null));
+		expected.setPiece(3, 3, new Piece(SquareType.WHITE, PieceKind.evil));
+		stateChanger.makeMove(start, move);
+		assertEquals(expected, start);
+	}
+	
+	@Test
+	public void testBlackEvilCaptureWhiteEvil() {
 		Move move = new Move(new Position(3, 2), new Position(3, 3));
 		start.setPiece(3, 2, new Piece(SquareType.BLACK, PieceKind.evil));
 		start.setPiece(3, 3, new Piece(SquareType.WHITE, PieceKind.evil));
@@ -121,6 +170,22 @@ public abstract class AbstractStateChangerAllTest extends AbstractStateChangerTe
 		expected.setTurn(SquareType.WHITE);
 		expected.setPiece(3, 2, new Piece(SquareType.EMPTY, null));
 		expected.setPiece(3, 3, new Piece(SquareType.BLACK, PieceKind.evil));
+		stateChanger.makeMove(start, move);
+		assertEquals(expected, start);
+	}
+	
+	@Test
+	public void testWhiteEvilCaptureBlackEvil() {
+		Move move = new Move(new Position(3, 2), new Position(3, 3));
+		start.setPiece(3, 2, new Piece(SquareType.WHITE, PieceKind.evil));
+		start.setPiece(3, 3, new Piece(SquareType.BLACK, PieceKind.evil));
+		start.setPiece(4, 2, new Piece(SquareType.WHITE, PieceKind.good));
+		start.setPiece(4, 4, new Piece(SquareType.BLACK, PieceKind.evil));
+		start.setPiece(1, 3, new Piece(SquareType.BLACK, PieceKind.good));
+		State expected = start.copy();
+		expected.setTurn(SquareType.BLACK);
+		expected.setPiece(3, 2, new Piece(SquareType.EMPTY, null));
+		expected.setPiece(3, 3, new Piece(SquareType.WHITE, PieceKind.evil));
 		stateChanger.makeMove(start, move);
 		assertEquals(expected, start);
 	}

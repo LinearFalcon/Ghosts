@@ -7,8 +7,8 @@ import java.util.Arrays;
 import com.google.common.base.Objects;
 
 public class State {
-	private int ROW = 6;
-	private int COLUMN = 6;
+	public static final int ROW = 6;
+	public static final int COLUMN = 6;
 	private Result finalResult;							//null when no result
 	private Piece[][] board = new Piece[ROW][COLUMN];
 	private SquareType turn = SquareType.WHITE;					//used to determine whose turn
@@ -42,6 +42,10 @@ public class State {
 */	
 	public void setPiece(int row, int col, Piece piece) {
 		board[row][col] = piece;
+	}
+	
+	public Piece getPiece(Position p) {
+		return getPiece(p.getRow(), p.getCol());
 	}
 	
 	public Piece getPiece(int row, int col) {
