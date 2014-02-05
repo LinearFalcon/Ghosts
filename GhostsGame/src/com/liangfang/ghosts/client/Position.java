@@ -3,27 +3,27 @@ package com.liangfang.ghosts.client;
 import com.google.common.base.Objects;
 
 public class Position {
-	public int x;
-	public int y;
+	public int row;
+	public int col;
 	
 	public Position() {
-		x = -1;
-		y = -1;
+		row = -1;
+		col = -1;
 	}
 
-	public Position(int x, int y) {
-		this.x = x;
-		this.y = y;
+	public Position(int row, int col) {
+		this.row = row;
+		this.col = col;
 	}
 
 	@Override
 	public String toString() {
-	    return "(" + x + "," + y + ")";
+	    return "(" + row + "," + col + ")";
 	}
 
 	@Override
 	public int hashCode() {
-	    return Objects.hashCode(x, y);
+	    return Objects.hashCode(row, col);
 	}
 
 	@Override
@@ -32,8 +32,8 @@ public class Position {
 	    if (obj == null) return false;
 	    if (!(obj instanceof Position)) return false;
 	    Position other = (Position) obj;
-	    return x == other.x 
-	      && y == other.y;
+	    return row == other.row 
+	      && col == other.col;
 	}
 
 }

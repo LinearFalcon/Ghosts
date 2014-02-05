@@ -35,11 +35,11 @@ public class State {
 			}
 		}
 	}
-	
+/*	
 	public void makeMove(Move move) {		//should be in stateChanger class ??????
 		// Not yet implemented 
 	}
-	
+*/	
 	public void setPiece(int row, int col, Piece piece) {
 		board[row][col] = piece;
 	}
