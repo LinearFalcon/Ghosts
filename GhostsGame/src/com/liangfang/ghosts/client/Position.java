@@ -24,6 +24,26 @@ public class Position {
 	    return col;
 	}
 	
+	/*
+	 * Determine whether position pos is exit for specific side
+	 */
+	public boolean isExitForWhite(Position pos) {
+		return isExitForWhite(pos.getRow(), pos.getCol());
+	}
+	
+	public boolean isExitForWhite(int row, int col) {
+		return (row == 5 && col == 0) || (row == 5 && col == 5);
+	}
+	
+	public boolean isExitForBlack(Position pos) {
+		return isExitForWhite(pos.getRow(), pos.getCol());
+	}
+	
+	public boolean isExitForBlack(int row, int col) {
+		return (row == 0 && col == 0) || (row == 0 && col == 5);
+	}
+	
+	
 	@Override
 	public String toString() {
 	    return "(" + row + "," + col + ")";

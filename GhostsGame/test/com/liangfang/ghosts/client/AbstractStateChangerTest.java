@@ -28,10 +28,10 @@ public abstract class AbstractStateChangerTest {		//do some pre-stuff before JUn
 	    for (int r = 0; r < 6; r++) {
 	      for (int c = 0; c < 6; c++) {
 	        Piece piece = state.getPiece(r, c);
-	        if (piece.gettype() == SquareType.EMPTY || piece.gettype() == SquareType.EXIT) {
+	        if (piece == null) {
 	          continue;
 	        }
-	        else if (piece.gettype() == SquareType.BLACK) {
+	        else if (piece.getColor() == Color.BLACK) {
 	        	if (piece.getPieceKind() == PieceKind.good) {
 	        		blackGood++;
 	        	}

@@ -5,10 +5,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Objects;
 
 public class Result {
-	private SquareType winner;
+	private Color winner;
 	private GameResultReason reason;
 	
-	public Result(SquareType winner, GameResultReason reason) {
+	public Result(Color winner, GameResultReason reason) {
 		this.winner = winner;
 		this.reason = checkNotNull(reason);
 	}
@@ -21,7 +21,7 @@ public class Result {
 	    return winner == null;
 	}
 	
-	public SquareType getWinner() {
+	public Color getWinner() {
 		return winner;
 	}
 	

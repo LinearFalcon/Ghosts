@@ -6,16 +6,16 @@ import com.google.common.base.Objects;
 
 
 public class Piece {
-	private SquareType type;
+	private Color color;
 	private PieceKind kind;
 	
-	public Piece(SquareType type, PieceKind kind) {
-		this.type = checkNotNull(type);
+	public Piece(Color color, PieceKind kind) {
+		this.color = checkNotNull(color);
 		this.kind = kind;		//piece kind can be null since this piece could be exit
 	}
 	
-	public SquareType gettype() {
-		return type;
+	public Color getColor() {
+		return color;
 	}
 	
 	public PieceKind getPieceKind() {
@@ -24,12 +24,12 @@ public class Piece {
 	
 	@Override
 	public String toString() {
-	    return "(" + type + " " + kind + ")";
+	    return "(" + color + " " + kind + ")";
 	}
 
 	@Override
 	public int hashCode() {
-	    return Objects.hashCode(type, kind);
+	    return Objects.hashCode(color, kind);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class Piece {
 	    if (obj == null) return false;
 	    if (!(obj instanceof Piece)) return false;
 	    Piece other = (Piece) obj;
-	    return Objects.equal(type, other.type)
+	    return Objects.equal(color, other.color)
 	      && Objects.equal(kind, other.kind);
 	}
 }

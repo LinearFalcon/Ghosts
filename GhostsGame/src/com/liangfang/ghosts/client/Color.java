@@ -1,10 +1,8 @@
 package com.liangfang.ghosts.client;
 
-public enum SquareType {
+public enum Color {
 	WHITE, 
 	BLACK, 
-	EMPTY, 
-	EXIT,
 	;
 	
 	public boolean isWhite() {
@@ -15,11 +13,11 @@ public enum SquareType {
 		return this == BLACK;
 	}
 	
-	public SquareType changeColor() {
+	public Color getOpposite() {
 		return this == WHITE ? BLACK : WHITE;
 	}
 	
 	public String toString() {
 	    return isWhite() ? "W" : "B";
 	}
-}	//Each square has four types 
+}	 
