@@ -1,44 +1,19 @@
 package com.liangfang.ghosts.client;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+//import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Objects;
-
+//import com.google.common.base.Objects;
 
 public class Piece {
-	private Color color;
-	private PieceKind kind;
-	
-	public Piece(Color color, PieceKind kind) {
-		this.color = checkNotNull(color);
-		this.kind = kind;		//piece kind can be null since this piece could be exit
-	}
-	
-	public Color getColor() {
-		return color;
-	}
-	
-	public PieceKind getPieceKind() {
-		return kind;
-	}
-	
-	@Override
-	public String toString() {
-	    return "(" + color + " " + kind + ")";
+	private String pieceString;
+
+	public Piece(String str) {
+//		this.pieceString = checkNotNull(str);
+		this.pieceString = str;
 	}
 
-	@Override
-	public int hashCode() {
-	    return Objects.hashCode(color, kind);
+	public String getPieceString() {
+		return pieceString;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-	    if (this == obj) return true;
-	    if (obj == null) return false;
-	    if (!(obj instanceof Piece)) return false;
-	    Piece other = (Piece) obj;
-	    return Objects.equal(color, other.color)
-	      && Objects.equal(kind, other.kind);
-	}
+	
 }

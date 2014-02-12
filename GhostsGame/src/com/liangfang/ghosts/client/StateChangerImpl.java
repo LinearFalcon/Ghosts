@@ -46,7 +46,7 @@ public class StateChangerImpl implements StateChanger {
         state.setPiece(endPos, movingPiece);
         state.setTurn(movingPiece.getColor().getOpposite());
         
-        //According to example, I should use StateExploer to determine ******************* ?
+        //According to example, I should use StateExploer to determine ******************* 
         if (doesPlayerExit(state, movingPiece.getColor())) {
         	state.setResult(new Result(movingPiece.getColor(), GameResultReason.EXIT_SUCCEED));
         }
@@ -82,7 +82,7 @@ public class StateChangerImpl implements StateChanger {
 		Piece leftdown = state.getPiece(new Position(0,0));
 		Piece rightdown = state.getPiece(new Position(0,5));
 		
-		if (moverColor == Color.WHITE) {
+		if (moverColor == Color.W) {
 			if (leftup != null && leftup.getColor() == moverColor 
 					&& leftup.getPieceKind() == PieceKind.good) {
 				return true;

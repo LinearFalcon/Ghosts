@@ -11,7 +11,7 @@ public class State {
 	public static final int COLUMN = 6;
 	private Result finalResult;							//null when no result
 	private Piece[][] board = new Piece[ROW][COLUMN];
-	private Color turn = Color.WHITE;					//used to determine whose turn
+	private Color turn = Color.W;					//used to determine whose turn
 	
 	/*
 	 * lastCapturedPiece is the piece which is captured in last move.

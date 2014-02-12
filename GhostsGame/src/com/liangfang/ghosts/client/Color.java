@@ -1,23 +1,21 @@
 package com.liangfang.ghosts.client;
 
 public enum Color {
-	WHITE, 
-	BLACK, 
-	;
-	
+	W, B;
+
 	public boolean isWhite() {
-		return this == WHITE;
+		return this == W;
 	}
-	
+
 	public boolean isBlack() {
-		return this == BLACK;
+		return this == B;
 	}
-	
+
 	public Color getOpposite() {
-		return this == WHITE ? BLACK : WHITE;
+		return this == W ? B : W;
 	}
-	
+
 	public String toString() {
-	    return isWhite() ? "W" : "B";
+		return isWhite() ? "W" : "B";
 	}
-}	 
+}
