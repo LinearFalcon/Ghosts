@@ -16,8 +16,7 @@ public class GhostsLogicTest {
 	GhostsLogic ghostsLogic = new GhostsLogic();
 	private static final String PLAYER_ID = "playerId";
 
-	private static final String TURN = "turn"; // turn of which player (either W
-												// or B)
+	private static final String TURN = "turn"; // turn of which player (either W or B)
 	private static final String W = "W"; // White hand
 	private static final String B = "B"; // Black hand
 	private final int wId = 23;
@@ -33,7 +32,7 @@ public class GhostsLogicTest {
 	private final ImmutableMap<String, Object> emptyState = ImmutableMap
 			.<String, Object> of();
 	private final ImmutableMap<String, Object> nonEmptyState = ImmutableMap
-			.<String, Object> of("k", "v"); // ????????????
+			.<String, Object> of("k", "v"); 
 
 	private String[] P = createP();
 	private String[][] S = createS();
@@ -54,10 +53,14 @@ public class GhostsLogicTest {
 		return arr;
 	}
 
-	// here we don't need to consider visibility************
+	/** Here we don't need to consider visibility */
 	private Map<String, Object> randomWhiteState = ImmutableMap
-			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
-			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BEvil")
+			.<String, Object> builder()
+			.put(TURN, W)
+			.put(P[0], "WGood")
+			.put(P[1], "WEvil")
+			.put(P[8], "BGood")
+			.put(P[9], "BEvil")
 			.put(S[1][1], P[0]) // S11, WGood
 			.put(S[1][3], P[1]) // S13, WEvil
 			.put(S[4][1], P[8]) // S41, BGood
@@ -65,8 +68,12 @@ public class GhostsLogicTest {
 			.build();
 
 	private Map<String, Object> randomBlackState = ImmutableMap
-			.<String, Object> builder().put(TURN, B).put(P[0], "WGood")
-			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BEvil")
+			.<String, Object> builder()
+			.put(TURN, B)
+			.put(P[0], "WGood")
+			.put(P[1], "WEvil")
+			.put(P[8], "BGood")
+			.put(P[9], "BEvil")
 			.put(S[1][1], P[0]) // S11, WGood
 			.put(S[1][3], P[1]) // S13, WEvil
 			.put(S[4][1], P[8]) // S41, BGood
@@ -77,8 +84,11 @@ public class GhostsLogicTest {
 	 *  Black pieces are not visible
 	 */
 	private Map<String, Object> whiteToExitState = ImmutableMap
-			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
-			.put(P[1], "WGood").put(P[2], "WEvil")
+			.<String, Object> builder()
+			.put(TURN, W)
+			.put(P[0], "WGood")
+			.put(P[1], "WGood")
+			.put(P[2], "WEvil")
 			.put(S[4][0], P[0]) // S40, WGood
 			.put(S[5][4], P[1]) // S54, WGood
 			.put(S[4][4], P[2])
@@ -90,16 +100,39 @@ public class GhostsLogicTest {
 	 *  White pieces are not visible
 	 */
 	private Map<String, Object> blackToExitState = ImmutableMap
-			.<String, Object> builder().put(TURN, B).put(P[8], "BGood").put(P[9], "BGood")
+			.<String, Object> builder()
+			.put(TURN, B)
+			.put(P[8], "BGood")
+			.put(P[9], "BGood")
 			.put(P[10], "BEvil")
 			.put(S[1][1], P[0])
 			.put(S[1][3], P[1])
 			.put(S[0][1], P[8]) // S01, BGood
 			.put(S[1][5], P[9]) // S15, BGood
 			.put(S[5][2], P[10]).build();
+	
+	/** Assume black player has pieces which not stop white's move
+	 *  Black pieces are not visible
+	 */
+	private Map<String, Object> captureState = ImmutableMap
+			.<String, Object> builder()
+			.put(TURN, W)
+			.put(P[0], "WGood")
+			.put(P[1], "WEvil")
+			.put(S[4][0], P[0]) // S40, WGood
+			.put(S[3][0], P[1]) // S30, WEvil
+			.put(S[4][1], P[8])	// S41, some black ghost
+			.put(S[5][0], P[9]) // S50, some black ghost in white's exit
+			.put(S[2][0], P[10]) // some black ghost to maintain at least one good and one evil
+			.build();
 
-	// we don't care about current state, just verify last operation/move on
-	// last state
+	/** we don't care about current state, just verify last operation/move on
+	 * last state
+	 * @param lastMovePlayerId
+	 * @param lastState
+	 * @param lastMove
+	 * @return VerifyMove object
+	 */
 	private VerifyMove move(int lastMovePlayerId,
 			Map<String, Object> lastState, List<Operation> lastMove) {
 		return new VerifyMove(wId, playersInfo, emptyState, lastState, lastMove, lastMovePlayerId);
@@ -278,7 +311,87 @@ public class GhostsLogicTest {
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		assertHacker(verifyMove);
 	}
+	
+	@Test
+	public void testNotMoving() {
+		
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[1][1], P[0]), 
+				new Delete(S[1][1]));
 
+		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
+		assertHacker(verifyMove);
+	}
+	
+	@Test
+	public void testWrongTurnMove() {
+		
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, W), 
+				new Set(S[3][1], P[8]), 
+				new Delete(S[4][1]));
+
+		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
+		assertHacker(verifyMove);
+	}
+	
+	@Test
+	public void testMovingPieceNotExist() {
+		
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[3][2], P[8]), 
+				new Delete(S[3][1]));
+
+		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
+		assertHacker(verifyMove);
+	}
+
+	@Test
+	public void testNormalWhiteCaptureBlack() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[4][1], P[0]), 
+				new Delete(S[4][0]),
+				new Delete(P[8]));
+
+		VerifyMove verifyMove = move(wId, captureState, operations);
+		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
+		assertEquals(0, verifyDone.getHackerPlayerId());
+	}
+	
+	@Test
+	public void testCaptureSameSide() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[3][0], P[0]), 
+				new Delete(S[4][0]),
+				new Delete(P[1]));
+
+		VerifyMove verifyMove = move(wId, captureState, operations);
+		assertHacker(verifyMove);
+	}
+	
+	@Test
+	public void testWhiteCaptureAndExit() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[5][0], P[0]), 
+				new Delete(S[4][0]),
+				new Delete(P[9]),
+				new SetVisibility(P[0]),
+				new SetVisibility(P[1]),
+				new EndGame(wId));
+
+		VerifyMove verifyMove = move(wId, captureState, operations);
+		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
+		assertEquals(0, verifyDone.getHackerPlayerId());
+	}
+	
 	@Test
 	public void testBlackExitRight() {
 

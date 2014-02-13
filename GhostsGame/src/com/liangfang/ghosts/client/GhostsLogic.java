@@ -114,9 +114,9 @@ public class GhostsLogic {
 			}
 		} else { // capture happens
 			if (isMovingGoodToExit(movingPiece, endSquare, lastState)) { // exit
-				return normalCapture(movingPiece, startSquare, endSquare, lastState);
-			} else { // normal move to empty square
 				return captureAndExit(movingPiece, startSquare, endSquare, lastState);
+			} else { // normal move to empty square
+				return normalCapture(movingPiece, startSquare, endSquare, lastState);
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public class GhostsLogic {
 		return operations;
 	}
 	
-	List<Operation> normalMoveToEmptySquare(String movingPiece, String startSquare, //*******************???????????????????
+	List<Operation> normalMoveToEmptySquare(String movingPiece, String startSquare, 
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Operation> operations = Lists.newArrayList();
