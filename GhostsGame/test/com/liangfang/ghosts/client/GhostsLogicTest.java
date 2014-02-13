@@ -73,10 +73,12 @@ public class GhostsLogicTest {
 			.put(S[4][3], P[9]) // S43, BEvil
 			.build();
 
+	/** Assume black player has pieces which not stop white's move
+	 *  Black pieces are not visible
+	 */
 	private Map<String, Object> whiteToExitState = ImmutableMap
 			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
-			.put(P[1], "WGood").put(P[2], "WEvil").put(P[8], "BGood")
-			.put(P[9], "BEvil")
+			.put(P[1], "WGood").put(P[2], "WEvil")
 			.put(S[4][0], P[0]) // S40, WGood
 			.put(S[5][4], P[1]) // S54, WGood
 			.put(S[4][4], P[2])
@@ -84,9 +86,11 @@ public class GhostsLogicTest {
 			.put(S[4][3], P[9])
 			.build();
 
+	/** Assume white player has pieces which not stop black's move
+	 *  White pieces are not visible
+	 */
 	private Map<String, Object> blackToExitState = ImmutableMap
-			.<String, Object> builder().put(TURN, B).put(P[0], "WGood")
-			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BGood")
+			.<String, Object> builder().put(TURN, B).put(P[8], "BGood").put(P[9], "BGood")
 			.put(P[10], "BEvil")
 			.put(S[1][1], P[0])
 			.put(S[1][3], P[1])
@@ -98,11 +102,7 @@ public class GhostsLogicTest {
 	// last state
 	private VerifyMove move(int lastMovePlayerId,
 			Map<String, Object> lastState, List<Operation> lastMove) {
-		return new VerifyMove(wId, playersInfo,
-		// we never need to check the resulting state (the server makes it, and
-		// the game
-		// doesn't have any hidden decisions such in Battleships)
-				emptyState, lastState, lastMove, lastMovePlayerId);
+		return new VerifyMove(wId, playersInfo, emptyState, lastState, lastMove, lastMovePlayerId);
 	}
 
 	private void assertHacker(VerifyMove verifyMove) {
@@ -282,10 +282,13 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackExitRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[0][5], P[9]), new Delete(S[1][5]),
-				new SetVisibility(P[8], visibleToW), new SetVisibility(P[9],
-						visibleToW), new SetVisibility(P[10], visibleToW),
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, W), 
+				new Set(S[0][5], P[9]), 
+				new Delete(S[1][5]),
+				new SetVisibility(P[8]), 
+				new SetVisibility(P[9]), 
+				new SetVisibility(P[10]),
 				new EndGame(bId));
 
 		VerifyMove verifyMove = move(bId, blackToExitState, operations);
@@ -296,10 +299,13 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackExitLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[0][0], P[8]), new Delete(S[0][1]),
-				new SetVisibility(P[8], visibleToW), new SetVisibility(P[9],
-						visibleToW), new SetVisibility(P[10], visibleToW),
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, W), 
+				new Set(S[0][0], P[8]), 
+				new Delete(S[0][1]),
+				new SetVisibility(P[8]), 
+				new SetVisibility(P[9]), 
+				new SetVisibility(P[10]),
 				new EndGame(bId));
 
 		VerifyMove verifyMove = move(bId, blackToExitState, operations);
@@ -310,10 +316,13 @@ public class GhostsLogicTest {
 	@Test
 	public void testWhiteExitRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[5][5], P[1]), new Delete(S[5][4]),
-				new SetVisibility(P[0], visibleToB), new SetVisibility(P[1],
-						visibleToB), new SetVisibility(P[2], visibleToB),
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[5][5], P[1]), 
+				new Delete(S[5][4]),
+				new SetVisibility(P[0]), 
+				new SetVisibility(P[1]),
+				new SetVisibility(P[2]),
 				new EndGame(wId));
 
 		VerifyMove verifyMove = move(wId, whiteToExitState, operations);
@@ -324,10 +333,13 @@ public class GhostsLogicTest {
 	@Test
 	public void testWhiteExitLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[5][0], P[0]), new Delete(S[4][0]),
-				new SetVisibility(P[0], visibleToB), new SetVisibility(P[1],
-						visibleToB), new SetVisibility(P[2], visibleToB),
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(S[5][0], P[0]), 
+				new Delete(S[4][0]),
+				new SetVisibility(P[0]), 
+				new SetVisibility(P[1]), 
+				new SetVisibility(P[2]),
 				new EndGame(wId));
 
 		VerifyMove verifyMove = move(wId, whiteToExitState, operations);

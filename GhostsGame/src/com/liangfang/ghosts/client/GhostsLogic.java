@@ -127,13 +127,13 @@ public class GhostsLogic {
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(TURN, turn.getOpposite().name()));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		
 		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
-			Piece piece = pieces.get(i).get();	//visible to all
-			if (piece != null) {
+												//visible to all
+			if (pieces.get(i).isPresent()) {
 				operations.add(new SetVisibility(P + i));
 			}
 		}
@@ -149,7 +149,7 @@ public class GhostsLogic {
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(TURN, turn.getOpposite().name()));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		return operations;
@@ -160,7 +160,7 @@ public class GhostsLogic {
 		Color turn = lastState.getTurn();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(TURN, turn.getOpposite().name()));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		int row = (int) (endSquare.charAt(1) - '0');
@@ -175,15 +175,15 @@ public class GhostsLogic {
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(TURN, turn.getOpposite().name()));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		int row = (int) (endSquare.charAt(1) - '0');
 		int col = (int) (endSquare.charAt(2) - '0');
 		operations.add(new Delete(squares.get(new Position(row, col))));
 		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
-			Piece piece = pieces.get(i).get();	//visible to all
-			if (piece != null) {
+			 									//visible to all
+			if (pieces.get(i).isPresent()) {
 				operations.add(new SetVisibility(P + i));
 			}
 		}
@@ -223,23 +223,31 @@ public class GhostsLogic {
 	boolean notGoodOrEvilAllCaptured(GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		boolean hasGood = false, hasEvil = false;
-
+		List<Optional<Piece>> pieces = lastState.getPieces();
 		if (turn.isBlack()) {
-			for (int i = 8; i < 16; i++) {
-				Piece piece = lastState.getPieces().get(i).get();
-				if (piece.getPieceKind() == "BGood") {
-					hasGood = true;
-				} else if (piece.getPieceKind() == "BEvil") {
-					hasEvil = true;
+			for (int i = 8; i < 16; i++) {		
+				if (pieces.get(i).isPresent()) {				//Returns true if this holder contains a (non-null) instance.
+					if (pieces.get(i).get().getPieceKind() == "BGood") {
+						hasGood = true;
+					} else if (pieces.get(i).get().getPieceKind() == "BEvil") {
+						hasEvil = true;
+					}
+				}
+				else {
+					continue;
 				}
 			}
 		} else {
 			for (int i = 0; i < 8; i++) {
-				Piece piece = lastState.getPieces().get(i).get();
-				if (piece.getPieceKind() == "WGood") {
-					hasGood = true;
-				} else if (piece.getPieceKind() == "WEvil") {
-					hasEvil = true;
+				if (pieces.get(i).isPresent()) {	
+					if (pieces.get(i).get().getPieceKind() == "WGood") {
+						hasGood = true;
+					} else if (pieces.get(i).get().getPieceKind() == "WEvil") {
+						hasEvil = true;
+					}
+				}
+				else {
+					continue;
 				}
 			}
 		}
@@ -259,13 +267,13 @@ public class GhostsLogic {
 		if (turn.isBlack()) {
 			if (downLeft != null) {
 				int index = getIndexFromPieceName(downLeft);
-				if (pieces.get(index) != null)
+				if (pieces.get(index).isPresent())
 					return pieces.get(index).get().getPieceKind() == "BGood";
 				else
 					return false;
 			} else if (downRight != null) {
 				int index = getIndexFromPieceName(downRight);
-				if (pieces.get(index) != null)
+				if (pieces.get(index).isPresent())
 					return pieces.get(index).get().getPieceKind() == "BGood";
 				else
 					return false;
@@ -275,13 +283,13 @@ public class GhostsLogic {
 		} else {
 			if (upLeft != null) {
 				int index = getIndexFromPieceName(upLeft);
-				if (pieces.get(index) != null)
+				if (pieces.get(index).isPresent())
 					return pieces.get(index).get().getPieceKind() == "WGood";
 				else
 					return false;
 			} else if (upRight != null) {
 				int index = getIndexFromPieceName(upRight);
-				if (pieces.get(index) != null)
+				if (pieces.get(index).isPresent())
 					return pieces.get(index).get().getPieceKind() == "WGood";
 				else
 					return false;
@@ -317,13 +325,13 @@ public class GhostsLogic {
 			int index = getIndexFromPieceName(movingPiece);
 			if (turn.isBlack()) {
 				if (index >= 8 && index < 16) {
-					return pieces.get(index).get() != null;
+					return pieces.get(index).isPresent();
 				} else {
 					return false;
 				}
 			} else {
 				if (index >= 0 && index < 8) {
-					return pieces.get(index).get() != null;
+					return pieces.get(index).isPresent();
 				} else {
 					return false;
 				}
@@ -349,10 +357,10 @@ public class GhostsLogic {
 		String pieceStr = squares.get(new Position(row, col));
 		if (pieceStr != null) {
 			int index = getIndexFromPieceName(pieceStr);
-			Piece tempP = pieces.get(index).get();
-			if (tempP != null) { // endSquare's piece is not null means it is on
-									// the same
-				return true; // side of last player, so sameSideCapture happens.
+			
+			if (pieces.get(index).isPresent()) {// endSquare's piece is not null means it is on
+												// the same
+				return true; 					// side of last player, so sameSideCapture happens.
 			} else {
 				return false;
 			}
@@ -464,6 +472,6 @@ public class GhostsLogic {
 		}
 
 		return new GhostsState(Color.valueOf((String) gameApiState.get(TURN)),
-				ImmutableList.copyOf(Pieces), ImmutableMap.copyOf(Squares));
+				ImmutableList.copyOf(Pieces), Squares);
 	}
 }

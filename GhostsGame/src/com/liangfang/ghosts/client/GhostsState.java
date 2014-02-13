@@ -2,6 +2,8 @@ package com.liangfang.ghosts.client;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList;
@@ -20,10 +22,10 @@ public class GhostsState {
 	 * square.
 	 * @arg String here is whether null or one of "P0"~"P15"
 	 */
-	private final ImmutableMap<Position, String> Squares;
+	private final Map<Position, String> Squares;
 
 	public GhostsState(Color turn, ImmutableList<Optional<Piece>> Pieces,
-			ImmutableMap<Position, String> Squares) {
+			Map<Position, String> Squares) {
 		super();
 		this.turn = checkNotNull(turn);
 		this.Pieces = checkNotNull(Pieces);
@@ -38,7 +40,7 @@ public class GhostsState {
 		return Pieces;
 	}
 
-	public ImmutableMap<Position, String> getSquares() {
+	public Map<Position, String> getSquares() {
 		return Squares;
 	}
 
