@@ -54,6 +54,7 @@ public class GhostsLogicTest {
 		return arr;
 	}
 
+	// here we don't need to consider visibility************
 	private Map<String, Object> randomWhiteState = ImmutableMap
 			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
 			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BEvil")
@@ -283,7 +284,7 @@ public class GhostsLogicTest {
 
 		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
 				W), new Set(S[0][5], P[9]), new Delete(S[1][5]),
-				new SetVisibility(P[9], visibleToW), new SetVisibility(P[8],
+				new SetVisibility(P[8], visibleToW), new SetVisibility(P[9],
 						visibleToW), new SetVisibility(P[10], visibleToW),
 				new EndGame(bId));
 
@@ -297,7 +298,7 @@ public class GhostsLogicTest {
 
 		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
 				W), new Set(S[0][0], P[8]), new Delete(S[0][1]),
-				new SetVisibility(P[9], visibleToW), new SetVisibility(P[8],
+				new SetVisibility(P[8], visibleToW), new SetVisibility(P[9],
 						visibleToW), new SetVisibility(P[10], visibleToW),
 				new EndGame(bId));
 
@@ -311,7 +312,7 @@ public class GhostsLogicTest {
 
 		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
 				B), new Set(S[5][5], P[1]), new Delete(S[5][4]),
-				new SetVisibility(P[1], visibleToB), new SetVisibility(P[0],
+				new SetVisibility(P[0], visibleToB), new SetVisibility(P[1],
 						visibleToB), new SetVisibility(P[2], visibleToB),
 				new EndGame(wId));
 
@@ -325,7 +326,7 @@ public class GhostsLogicTest {
 
 		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
 				B), new Set(S[5][0], P[0]), new Delete(S[4][0]),
-				new SetVisibility(P[1], visibleToB), new SetVisibility(P[0],
+				new SetVisibility(P[0], visibleToB), new SetVisibility(P[1],
 						visibleToB), new SetVisibility(P[2], visibleToB),
 				new EndGame(wId));
 

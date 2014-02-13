@@ -7,9 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-//import com.liangfang.ghosts.client.Card.Rank;
-//import com.liangfang.ghosts.client.Card.Suit;
 import com.liangfang.ghosts.client.GameApi.Delete;
+import com.liangfang.ghosts.client.GameApi.EndGame;
 import com.liangfang.ghosts.client.GameApi.Operation;
 import com.liangfang.ghosts.client.GameApi.Set;
 import com.liangfang.ghosts.client.GameApi.SetVisibility;
@@ -30,6 +29,8 @@ public class GhostsLogic {
 	private static final String B = "B"; // Black hand
 	private static final String P = "P"; // Piece key (P0...P15)
 	private static final String S = "S"; // Square key (S00...S55)
+	private final int wId = 23;
+	private final int bId = 24;
 
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
@@ -107,25 +108,91 @@ public class GhostsLogic {
 		// Move to empty square can be either a normal move or successful exit
 		if (isEndSquareEmpty(endSquare, lastState)) {
 			if (isMovingGoodToExit(movingPiece, endSquare, lastState)) { // exit
-				return exitMove();
+				return exitMove(movingPiece, startSquare, endSquare, lastState);
 			} else { // normal move to empty square
-				return normalMoveToEmptySquare();
+				return normalMoveToEmptySquare(movingPiece, startSquare, endSquare, lastState);
 			}
 		} else { // capture happens
-			return captureMove();
+			if (isMovingGoodToExit(movingPiece, endSquare, lastState)) { // exit
+				return normalCapture(movingPiece, startSquare, endSquare, lastState);
+			} else { // normal move to empty square
+				return captureAndExit(movingPiece, startSquare, endSquare, lastState);
+			}
 		}
 	}
 	
-	List<Operation> exitMove() {
+	List<Operation> exitMove(String movingPiece, String startSquare, 
+			String endSquare, GhostsState lastState) {
+		Color turn = lastState.getTurn();
+		List<Optional<Piece>> pieces = lastState.getPieces();
+		Map<Position, String> squares = lastState.getSquares();
+		List<Operation> operations = Lists.newArrayList();
+		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(endSquare, movingPiece));
+		operations.add(new Delete(startSquare));
 		
+		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
+			Piece piece = pieces.get(i).get();	//visible to all
+			if (piece != null) {
+				operations.add(new SetVisibility(P + i));
+			}
+		}
+		if (turn.isBlack())
+			operations.add(new EndGame(bId));
+		else
+			operations.add(new EndGame(wId));
+		
+		return operations;
 	}
 	
-	List<Operation> normalMoveToEmptySquare() {
-		
+	List<Operation> normalMoveToEmptySquare(String movingPiece, String startSquare, //*******************???????????????????
+			String endSquare, GhostsState lastState) {
+		Color turn = lastState.getTurn();
+		List<Operation> operations = Lists.newArrayList();
+		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(endSquare, movingPiece));
+		operations.add(new Delete(startSquare));
+		return operations;
 	}
 
-	List<Operation> captureMove() {
+	List<Operation> normalCapture(String movingPiece, String startSquare, 
+			String endSquare, GhostsState lastState) {
+		Color turn = lastState.getTurn();
+		Map<Position, String> squares = lastState.getSquares();
+		List<Operation> operations = Lists.newArrayList();
+		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(endSquare, movingPiece));
+		operations.add(new Delete(startSquare));
+		int row = (int) (endSquare.charAt(1) - '0');
+		int col = (int) (endSquare.charAt(2) - '0');
+		operations.add(new Delete(squares.get(new Position(row, col))));
+		return operations;
+	}
 	
+	List<Operation> captureAndExit(String movingPiece, String startSquare, 
+			String endSquare, GhostsState lastState) {
+		Color turn = lastState.getTurn();
+		List<Optional<Piece>> pieces = lastState.getPieces();
+		Map<Position, String> squares = lastState.getSquares();
+		List<Operation> operations = Lists.newArrayList();
+		operations.add(new Set(TURN, turn.getOpposite()));
+		operations.add(new Set(endSquare, movingPiece));
+		operations.add(new Delete(startSquare));
+		int row = (int) (endSquare.charAt(1) - '0');
+		int col = (int) (endSquare.charAt(2) - '0');
+		operations.add(new Delete(squares.get(new Position(row, col))));
+		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
+			Piece piece = pieces.get(i).get();	//visible to all
+			if (piece != null) {
+				operations.add(new SetVisibility(P + i));
+			}
+		}
+		
+		if (turn.isBlack())
+			operations.add(new EndGame(bId));
+		else
+			operations.add(new EndGame(wId));
+		return operations;
 	}
 
 	boolean isEndSquareEmpty(String endSquare, GhostsState lastState) {
