@@ -50,41 +50,47 @@ public class GhostsLogicTest {
 		String[][] arr = new String[6][6];
 		for (int i = 0; i < 6; i++)
 			for (int j = 0; j < 6; j++)
-				arr[i][j] = ("S" + (i + 1)) + (j + 1);
+				arr[i][j] = ("S" + i) + j;
 		return arr;
 	}
 
 	private Map<String, Object> randomWhiteState = ImmutableMap
 			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
 			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BEvil")
-			.put(S[1][1], P[0]) // S22, WGood
-			.put(S[1][3], P[1]) // S24, WEvil
-			.put(S[4][1], P[8]) // S52, BGood
-			.put(S[4][3], P[9]) // S54, BEvil
+			.put(S[1][1], P[0]) // S11, WGood
+			.put(S[1][3], P[1]) // S13, WEvil
+			.put(S[4][1], P[8]) // S41, BGood
+			.put(S[4][3], P[9]) // S43, BEvil
 			.build();
 
 	private Map<String, Object> randomBlackState = ImmutableMap
 			.<String, Object> builder().put(TURN, B).put(P[0], "WGood")
 			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BEvil")
-			.put(S[1][1], P[0]) // S22, WGood
-			.put(S[1][3], P[1]) // S24, WEvil
-			.put(S[4][1], P[8]) // S52, BGood
-			.put(S[4][3], P[9]) // S54, BEvil
+			.put(S[1][1], P[0]) // S11, WGood
+			.put(S[1][3], P[1]) // S13, WEvil
+			.put(S[4][1], P[8]) // S41, BGood
+			.put(S[4][3], P[9]) // S43, BEvil
 			.build();
 
 	private Map<String, Object> whiteToExitState = ImmutableMap
 			.<String, Object> builder().put(TURN, W).put(P[0], "WGood")
 			.put(P[1], "WGood").put(P[2], "WEvil").put(P[8], "BGood")
-			.put(P[9], "BEvil").put(S[4][0], P[0]) // S51, WGood
-			.put(S[5][4], P[1]) // S65, WGood
-			.put(S[4][4], P[2]).put(S[4][1], P[8]).put(S[4][3], P[9]).build();
+			.put(P[9], "BEvil")
+			.put(S[4][0], P[0]) // S40, WGood
+			.put(S[5][4], P[1]) // S54, WGood
+			.put(S[4][4], P[2])
+			.put(S[4][1], P[8])
+			.put(S[4][3], P[9])
+			.build();
 
 	private Map<String, Object> blackToExitState = ImmutableMap
 			.<String, Object> builder().put(TURN, B).put(P[0], "WGood")
 			.put(P[1], "WEvil").put(P[8], "BGood").put(P[9], "BGood")
-			.put(P[10], "BEvil").put(S[1][1], P[0]).put(S[1][3], P[1])
-			.put(S[0][1], P[8]) // S12, BGood
-			.put(S[1][5], P[9]) // S26, BGood
+			.put(P[10], "BEvil")
+			.put(S[1][1], P[0])
+			.put(S[1][3], P[1])
+			.put(S[0][1], P[8]) // S01, BGood
+			.put(S[1][5], P[9]) // S15, BGood
 			.put(S[5][2], P[10]).build();
 
 	// we don't care about current state, just verify last operation/move on

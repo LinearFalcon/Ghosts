@@ -29,7 +29,7 @@ public class GhostsLogic {
 	private static final String W = "W"; // White hand
 	private static final String B = "B"; // Black hand
 	private static final String P = "P"; // Piece key (P0...P15)
-	private static final String S = "S"; // Square key (S11...S66)
+	private static final String S = "S"; // Square key (S00...S55)
 
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
@@ -45,7 +45,7 @@ public class GhostsLogic {
 	void checkMoveIsLegal(VerifyMove verifyMove) {
 		List<Operation> lastMove = verifyMove.getLastMove();
 		Map<String, Object> lastState = verifyMove.getLastState();
-		
+
 		// Checking the operations are as expected.
 		List<Operation> expectedOperations = getExpectedOperations(lastState,
 				lastMove, verifyMove.getPlayerIds());
@@ -56,8 +56,7 @@ public class GhostsLogic {
 				.getPlayerIndex(verifyMove.getLastMovePlayerId())];
 		check(gotMoveFromColor == getExpectedMoveFromColor(lastState),
 				gotMoveFromColor);
-		
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,46 +64,105 @@ public class GhostsLogic {
 			List<Operation> lastMove, List<Integer> playerIds) {
 
 		if (lastApiState.isEmpty()) {
-			return getInitialMove(playerIds.get(0), playerIds.get(1));
+			return getInitialMove(playerIds.get(0), playerIds.get(1)); // **********Initial
+																		// includes
+																		// deploy
+																		// which
+																		// not
+																		// inplement
+																		// yet!!!!!!
 		}
-		
+
 		GhostsState lastState = gameApiStateToGhostsState(lastApiState);
-		String endSquare = ((Set)lastMove.get(1)).getKey();					//"Sxx", end square string
-		String startSquare = ((Delete)lastMove.get(2)).getKey();			//"Sxx", start square string
-		String movingPiece = (String) ((Set)lastMove.get(1)).getValue();	//"Px", moving piece string
-		
-		// check if in lastState, game already end because of all capturing of good or evil ghosts
+		String endSquare = ((Set) lastMove.get(1)).getKey(); 		// "Sxx", end square string S00~S55
+		String startSquare = ((Delete) lastMove.get(2)).getKey(); 	// "Sxx", start square string S00~S55
+		String movingPiece = (String) ((Set) lastMove.get(1)).getValue(); // "Px/xx", moving piece string, x or xx since could be 10~15
+
+		// check if in lastState, game already end because of all capturing of
+		// good or evil ghosts
 		check(notGoodOrEvilAllCaptured(lastState), lastState);
-		
-		// check if in lastState, game already end because of good ghost is already in exit
+
+		// check if in lastState, game already end because of good ghost is
+		// already in exit
 		check(!alreadyExit(lastState), lastState);
 
 		// check whether lastMove is valid
 		check(!(lastMove.isEmpty() || lastMove.size() < 3), lastMove);
-		
+
 		// check whether lastMove's start and end square is valid
-		check(validStartAndEndSquareNumber(startSquare, endSquare), startSquare, endSquare);
-		
+		check(validStartAndEndSquareNumber(startSquare, endSquare),
+				startSquare, endSquare);
+
 		// check whether moving piece exists and it is in right color
-		check(movingPieceExistAndValid(movingPiece, lastState), movingPiece, lastState);
-		
+		check(movingPieceExistAndValid(movingPiece, lastState), movingPiece,
+				lastState);
+
+		// check whether moving piece was originally in start Square
+		check(movingPieceWasInStartSquare(movingPiece, startSquare, lastState),
+				movingPiece, startSquare, lastState);
+
 		// check wheter one ghost captures another ghost in same color
 		check(!sameSideCapture(endSquare, lastState), endSquare, lastState);
-		
-		return null; // to be modified***********************
+
+		// Move to empty square can be either a normal move or successful exit
+		if (isEndSquareEmpty(endSquare, lastState)) {
+			if (isMovingGoodToExit(movingPiece, endSquare, lastState)) { // exit
+				return exitMove();
+			} else { // normal move to empty square
+				return normalMoveToEmptySquare();
+			}
+		} else { // capture happens
+			return captureMove();
+		}
 	}
 	
+	List<Operation> exitMove() {
+		
+	}
+	
+	List<Operation> normalMoveToEmptySquare() {
+		
+	}
+
+	List<Operation> captureMove() {
+	
+	}
+
+	boolean isEndSquareEmpty(String endSquare, GhostsState lastState) {
+		Map<Position, String> squares = lastState.getSquares();
+		int row = (int) (endSquare.charAt(1) - '0');
+		int col = (int) (endSquare.charAt(2) - '0');
+		String pieceStr = squares.get(new Position(row, col));
+		return pieceStr == null;
+	}
+
+	boolean isMovingGoodToExit(String movingPiece, String endSquare, GhostsState lastState) {
+		Color turn = lastState.getTurn();
+		List<Optional<Piece>> pieces = lastState.getPieces();
+		int index = getIndexFromPieceName(movingPiece);
+		char row = endSquare.charAt(1);
+		char col = endSquare.charAt(2);
+		if (turn.isBlack()) {
+			String pieceKind = pieces.get(index).get().getPieceKind();
+			return pieceKind.charAt(1) == 'G' && ((row == '0' && col == '0') 
+													|| (row == '0' && col == '5'));
+		} else {
+			String pieceKind = pieces.get(index).get().getPieceKind();
+			return pieceKind.charAt(1) == 'G' && ((row == '5' && col == '0') 
+													|| (row == '5' && col == '5'));
+		}
+	}
+
 	boolean notGoodOrEvilAllCaptured(GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		boolean hasGood = false, hasEvil = false;
-		
+
 		if (turn.isBlack()) {
 			for (int i = 8; i < 16; i++) {
 				Piece piece = lastState.getPieces().get(i).get();
 				if (piece.getPieceKind() == "BGood") {
 					hasGood = true;
-				}
-				else if (piece.getPieceKind() == "BEvil") {
+				} else if (piece.getPieceKind() == "BEvil") {
 					hasEvil = true;
 				}
 			}
@@ -113,34 +171,33 @@ public class GhostsLogic {
 				Piece piece = lastState.getPieces().get(i).get();
 				if (piece.getPieceKind() == "WGood") {
 					hasGood = true;
-				}
-				else if (piece.getPieceKind() == "WEvil") {
+				} else if (piece.getPieceKind() == "WEvil") {
 					hasEvil = true;
 				}
 			}
 		}
 		return (hasGood && hasEvil);
 	}
-	
+
 	// Determine if last player already exit successfully
 	boolean alreadyExit(GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Optional<Piece>> pieces = lastState.getPieces();
-		String downLeft = squares.get(new Position(0,0));
-		String downRight = squares.get(new Position(0,5));
-		String upLeft = squares.get(new Position(5,0));
-		String upRight = squares.get(new Position(5,5));
-		
+		String downLeft = squares.get(new Position(0, 0));
+		String downRight = squares.get(new Position(0, 5));
+		String upLeft = squares.get(new Position(5, 0));
+		String upRight = squares.get(new Position(5, 5));
+
 		if (turn.isBlack()) {
 			if (downLeft != null) {
-				int index = (int)(downLeft.charAt(1) - '0');
+				int index = getIndexFromPieceName(downLeft);
 				if (pieces.get(index) != null)
 					return pieces.get(index).get().getPieceKind() == "BGood";
 				else
 					return false;
 			} else if (downRight != null) {
-				int index = (int)(downRight.charAt(1) - '0');
+				int index = getIndexFromPieceName(downRight);
 				if (pieces.get(index) != null)
 					return pieces.get(index).get().getPieceKind() == "BGood";
 				else
@@ -150,13 +207,13 @@ public class GhostsLogic {
 			}
 		} else {
 			if (upLeft != null) {
-				int index = (int)(upLeft.charAt(1) - '0');
+				int index = getIndexFromPieceName(upLeft);
 				if (pieces.get(index) != null)
 					return pieces.get(index).get().getPieceKind() == "WGood";
 				else
 					return false;
 			} else if (upRight != null) {
-				int index = (int)(upRight.charAt(1) - '0');
+				int index = getIndexFromPieceName(upRight);
 				if (pieces.get(index) != null)
 					return pieces.get(index).get().getPieceKind() == "WGood";
 				else
@@ -166,33 +223,31 @@ public class GhostsLogic {
 			}
 		}
 	}
-	
+
 	boolean validStartAndEndSquareNumber(String startSquare, String endSquare) {
 		check(startSquare.length() == 3, startSquare);
 		check(endSquare.length() == 3, endSquare);
-		int i1 = (int)(startSquare.charAt(1) - '0');
-		int i2 = (int)(startSquare.charAt(2) - '0');
-		int i3 = (int)(endSquare.charAt(1) - '0');
-		int i4 = (int)(endSquare.charAt(2) - '0');
-		
+		int i1 = (int) (startSquare.charAt(1) - '0');
+		int i2 = (int) (startSquare.charAt(2) - '0');
+		int i3 = (int) (endSquare.charAt(1) - '0');
+		int i4 = (int) (endSquare.charAt(2) - '0');
+
 		if (Math.abs(i1 - i3) >= 1 && Math.abs(i2 - i4) >= 1)
 			return false;
-		
+
 		return (startSquare.charAt(0) == 'S' && endSquare.charAt(0) == 'S')
 				&& (Math.abs(i1 - i3) == 1 || Math.abs(i2 - i4) == 1)
-				&& (i1 >= 0 && i1 <=6) 
-				&& (i2 >= 0 && i2 <=6) 
-				&& (i3 >= 0 && i3 <=6)
-				&& (i4 >= 0 && i4 <=6);
+				&& (i1 >= 0 && i1 < 6) && (i2 >= 0 && i2 < 6)
+				&& (i3 >= 0 && i3 < 6) && (i4 >= 0 && i4 < 6);
 	}
-	
+
 	boolean movingPieceExistAndValid(String movingPiece, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		if (movingPiece == null) {
 			return false;
 		} else {
-			int index = (int)(movingPiece.charAt(1) - '0');
+			int index = getIndexFromPieceName(movingPiece);
 			if (turn.isBlack()) {
 				if (index >= 8 && index < 16) {
 					return pieces.get(index).get() != null;
@@ -208,72 +263,94 @@ public class GhostsLogic {
 			}
 		}
 	}
-	
+
+	boolean movingPieceWasInStartSquare(String movingPiece, String startSquare, 
+			GhostsState lastState) {
+		Map<Position, String> squares = lastState.getSquares();
+		int row = (int) (startSquare.charAt(1) - '0');
+		int col = (int) (startSquare.charAt(2) - '0');
+		String pieceStr = squares.get(new Position(row, col));
+		return movingPiece == pieceStr;
+	}
+
 	boolean sameSideCapture(String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		Map<Position, String> squares = lastState.getSquares();
-		int row = (int)(endSquare.charAt(1) - '0');
-		int col = (int)(endSquare.charAt(2) - '0');
+		int row = (int) (endSquare.charAt(1) - '0');
+		int col = (int) (endSquare.charAt(2) - '0');
 		String pieceStr = squares.get(new Position(row, col));
 		if (pieceStr != null) {
-			int index = (int)(pieceStr.charAt(1) - '0');
+			int index = getIndexFromPieceName(pieceStr);
 			Piece tempP = pieces.get(index).get();
-			if (tempP != null) {			//endSquare's piece is not null means it is on the same
-				return true;				//side of last player, so sameSideCapture happens.
+			if (tempP != null) { // endSquare's piece is not null means it is on
+									// the same
+				return true; // side of last player, so sameSideCapture happens.
 			} else {
 				return false;
 			}
 		}
 		return false;
 	}
-	
 
-	List<Operation> getInitialMove(int whitePlayerId, int blackPlayerId) {   	//initial state may have problem!!!!!!*********************
+	List<Operation> getInitialMove(int whitePlayerId, int blackPlayerId) { // initial
+																			// state
+																			// may
+																			// have
+																			// problem!!!!!!*********************
 		List<Operation> operations = Lists.newArrayList();
 		// The order of operations: turn, isCheater, W, B, M, claim, C0...C51
 		operations.add(new Set(TURN, W));
-		
+
 		// sets all 16 pieces: set(P0,"WGood"), set(P15,"BEvil")
 		for (int i = 0; i < 16; i++) {
 			operations.add(new Set(P + i, pieceIdToString(i)));
 		}
-		
+
 		// shuffle(P0,...,P7) and shuffle(P8,...,P15)
 		operations.add(new Shuffle(getPiecesInRange(0, 7)));
 		operations.add(new Shuffle(getPiecesInRange(8, 15)));
-		
+
 		// sets visibility
 		for (int i = 0; i < 8; i++) {
 			operations.add(new SetVisibility(P + i, ImmutableList
 					.of(whitePlayerId)));
 		}
-		for (int i = 8; i < 15; i++) {
+		for (int i = 8; i < 16; i++) {
 			operations.add(new SetVisibility(P + i, ImmutableList
 					.of(blackPlayerId)));
 		}
 		return operations;
 	}
-	
+
 	String pieceIdToString(int pieceId) {
-		if (pieceId >=0 && pieceId <= 3)
+		if (pieceId >= 0 && pieceId <= 3)
 			return "WGood";
-		else if (pieceId >=4 && pieceId <= 7)
+		else if (pieceId >= 4 && pieceId <= 7)
 			return "WEvil";
-		else if (pieceId >=8 && pieceId <= 11)
+		else if (pieceId >= 8 && pieceId <= 11)
 			return "BGood";
 		else
 			return "BEvil";
 	}
 	
-	List<String> getPiecesInRange(int fromInclusive, int toInclusive) {
-	    List<String> keys = Lists.newArrayList();
-	    for (int i = fromInclusive; i <= toInclusive; i++) {
-	      keys.add(P + i);
-	    }
-	    return keys;
+	/** return int value of the number after "P" in Px/xx */
+	int getIndexFromPieceName(String piecename) {
+		if (piecename.length() == 2)
+			return (int)(piecename.charAt(1) - '0');
+		else {			// P10~P15
+			int tenth = (int)(piecename.charAt(1) - '0') * 10;
+			return tenth + (int)(piecename.charAt(2) - '0');
+		}
 	}
 
+	List<String> getPiecesInRange(int fromInclusive, int toInclusive) {
+		List<String> keys = Lists.newArrayList();
+		for (int i = fromInclusive; i <= toInclusive; i++) {
+			keys.add(P + i);
+		}
+		return keys;
+	}
 
 	/** Returns the color that should make the move. */
 	Color getExpectedMoveFromColor(Map<String, Object> lastState) {
@@ -292,7 +369,8 @@ public class GhostsLogic {
 	}
 
 	@SuppressWarnings("unchecked")
-	private GhostsState gameApiStateToGhostsState(Map<String, Object> gameApiState) {
+	private GhostsState gameApiStateToGhostsState(
+			Map<String, Object> gameApiState) {
 		List<Optional<Piece>> Pieces = Lists.newArrayList();
 		Map<Position, String> Squares = Maps.newHashMap();
 
@@ -309,11 +387,11 @@ public class GhostsLogic {
 		}
 
 		/** Convert Square info to GhostsState form */
-		for (int i = 1; i <= 6; i++) {
-			for (int j = 1; j <= 6; j++) {
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 6; j++) {
 				// if squareString is null, meaning no piece here
 				String squareString = (String) gameApiState.get((S + i) + j);
-				Position pos = new Position(i - 1, j - 1);
+				Position pos = new Position(i, j);
 				Squares.put(pos, squareString);
 			}
 		}
