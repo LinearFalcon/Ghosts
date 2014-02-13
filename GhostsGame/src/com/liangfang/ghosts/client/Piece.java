@@ -5,15 +5,22 @@ package com.liangfang.ghosts.client;
 //import com.google.common.base.Objects;
 
 public class Piece {
-	private String pieceString;
+	private String pieceKind;
 
 	public Piece(String str) {
 //		this.pieceString = checkNotNull(str);
-		this.pieceString = str;
+		this.pieceKind = str;
 	}
 
-	public String getPieceString() {
-		return pieceString;
+	public String getPieceKind() {
+		return pieceKind;
 	}
 	
+	public boolean isWhitePiece() {
+		return pieceKind.charAt(0) == 'W';
+	}
+	
+	public boolean isBlackPiece() {
+		return pieceKind.charAt(0) == 'B';
+	}
 }
