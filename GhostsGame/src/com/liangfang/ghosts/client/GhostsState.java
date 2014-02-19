@@ -23,13 +23,20 @@ public class GhostsState {
 	 * @arg String here is whether null or one of "P0"~"P15"
 	 */
 	private final Map<Position, String> Squares;
+	
+	// if one player hasn't deply his ghosts, then game cannot start
+	boolean wDeployFinished;
+	boolean bDeployFinished;
+	
 
 	public GhostsState(Color turn, ImmutableList<Optional<Piece>> Pieces,
-			Map<Position, String> Squares) {
+			Map<Position, String> Squares, boolean wDeployFinished, boolean bDeployFinished) {
 		super();
 		this.turn = checkNotNull(turn);
 		this.Pieces = checkNotNull(Pieces);
 		this.Squares = checkNotNull(Squares);
+		this.wDeployFinished = wDeployFinished;
+		this.bDeployFinished = bDeployFinished;
 	}
 
 	public Color getTurn() {
@@ -42,6 +49,14 @@ public class GhostsState {
 
 	public Map<Position, String> getSquares() {
 		return Squares;
+	}
+	
+	public boolean isWhiteDeployed() {
+		return wDeployFinished;
+	}
+	
+	public boolean isBlackDeployed() {
+		return bDeployFinished;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.liangfang.ghosts.client;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ public class GhostsLogic {
 	private static final String B = "B"; // Black hand
 	private static final String P = "P"; // Piece key (P0...P15)
 	private static final String S = "S"; // Square key (S00...S55)
+	private static final String WDeployed = "WDeployed"; // white deploy key
+	private static final String BDeployed = "BDeployed"; // black deploy key
 	private final int wId = 23;
 	private final int bId = 24;
 
@@ -47,34 +50,34 @@ public class GhostsLogic {
 		List<Operation> lastMove = verifyMove.getLastMove();
 		Map<String, Object> lastState = verifyMove.getLastState();
 
-		// Checking the operations are as expected.
-		List<Operation> expectedOperations = getExpectedOperations(lastState,
-				lastMove, verifyMove.getPlayerIds());
-		check(expectedOperations.equals(lastMove), expectedOperations, lastMove);
+		if (lastState.isEmpty()) {								                  // White player needs to deploy
+			check(doesWhiteDeployValid(lastMove, verifyMove.getPlayerIds().get(0), verifyMove.getPlayerIds().get(1)), lastMove); 
+		} else {
+		
+			GhostsState lastGameState = gameApiStateToGhostsState(lastState);
+		
+			if (lastGameState.isWhiteDeployed() && !lastGameState.isBlackDeployed()) {// Black player needs to deploy
+				check(doesBlackDeployValid(lastMove), lastMove);
+			} else {
+		
+				// Checking the operations are as expected.
+				List<Operation> expectedOperations = getExpectedOperations(lastGameState,
+						lastMove, verifyMove.getPlayerIds());
+				check(expectedOperations.equals(lastMove), expectedOperations, lastMove);
 
-		// Checking the right player did the move.
-		Color gotMoveFromColor = Color.values()[verifyMove
-				.getPlayerIndex(verifyMove.getLastMovePlayerId())];
-		check(gotMoveFromColor == getExpectedMoveFromColor(lastState),
-				gotMoveFromColor);
-
+				// We don't need to check that the correct player did the move.
+				// However, we do need to check the first move is done by the white player
+				if (verifyMove.getLastState().isEmpty()) {
+					check(verifyMove.getLastMovePlayerId() == verifyMove.getPlayerIds().get(0));
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	List<Operation> getExpectedOperations(Map<String, Object> lastApiState,
+	List<Operation> getExpectedOperations(GhostsState lastState,
 			List<Operation> lastMove, List<Integer> playerIds) {
-
-		if (lastApiState.isEmpty()) {
-			return getInitialMove(playerIds.get(0), playerIds.get(1)); // **********Initial
-																		// includes
-																		// deploy
-																		// which
-																		// not
-																		// inplement
-																		// yet!!!!!!
-		}
-
-		GhostsState lastState = gameApiStateToGhostsState(lastApiState);
+		
 		String endSquare = ((Set) lastMove.get(1)).getKey(); 		// "Sxx", end square string S00~S55
 		String startSquare = ((Delete) lastMove.get(2)).getKey(); 	// "Sxx", start square string S00~S55
 		String movingPiece = (String) ((Set) lastMove.get(1)).getValue(); // "Px/xx", moving piece string, x or xx since could be 10~15
@@ -121,6 +124,78 @@ public class GhostsLogic {
 		}
 	}
 	
+	// Determine if white player initial board and deploy ghosts in valid way
+	boolean doesWhiteDeployValid(List<Operation> lastMove, int whitePlayerId, int blackPlayerId) { 
+		
+		check(lastMove.get(0).equals(new Set(TURN, B)));		// next turn should be black deploy
+		// check if white sets all 16 pieces: set(P0,"WGood"), ..., set(P15,"BEvil")
+		for (int i = 0; i < 16; i++) {
+			check(lastMove.get(i + 1).equals(new Set(P + i, pieceIdToString(i))));
+		}
+
+		// check shuffle(P0,...,P7) and shuffle(P8,...,P15)
+		check(lastMove.get(17).equals(new Shuffle(getPiecesInRange(0, 7))));
+		check(lastMove.get(18).equals(new Shuffle(getPiecesInRange(8, 15))));
+
+		// sets visibility
+		for (int i = 0; i < 8; i++) {
+			check(lastMove.get(i + 19).equals(new SetVisibility(P + i, ImmutableList
+					.of(whitePlayerId))));
+		}
+		for (int i = 8; i < 16; i++) {
+			check(lastMove.get(i + 19).equals(new SetVisibility(P + i, ImmutableList
+					.of(blackPlayerId))));
+		} 
+		
+		//check if white deploy his ghosts in valid way
+		ArrayList<String> squares = new ArrayList<String>();
+		ArrayList<String> pieces = new ArrayList<String>();
+		for (int i = 0; i < 8; i++) {			
+			String square = ((Set) lastMove.get(i + 35)).getKey();
+			String piece = (String)((Set) lastMove.get(i + 35)).getValue();
+			squares.add(square);
+			pieces.add(piece);
+		}
+		for (int i = 0; i <= 1; i++) {
+			for (int j = 1; j <=4; j++) {
+				check(squares.contains((S + i) + j), squares);
+			}
+		}
+		for (int i = 0; i < 8; i++) {
+			check(pieces.contains(P + i), pieces);
+		}
+		
+		check(lastMove.get(lastMove.size() - 1).equals(new Set(WDeployed, "true")), lastMove);
+		return true;
+	}
+	
+	// Determine if black player deploy ghosts in valid way
+	boolean doesBlackDeployValid(List<Operation> lastMove) {
+		check(lastMove.get(0).equals(new Set(TURN, W)));		// next turn game begins by white moving first
+
+		//check if black deploy his ghosts in valid way
+		ArrayList<String> squares = new ArrayList<String>();
+		ArrayList<String> pieces = new ArrayList<String>();
+		for (int i = 0; i < 8; i++) {			
+			String square = ((Set) lastMove.get(i + 1)).getKey();
+			String piece = (String)((Set) lastMove.get(i + 1)).getValue();
+			squares.add(square);
+			pieces.add(piece);
+		}
+		for (int i = 4; i <= 5; i++) {
+			for (int j = 1; j <=4; j++) {
+				check(squares.contains((S + i) + j), squares);
+			}
+		}
+		for (int i = 8; i < 16; i++) {
+			check(pieces.contains(P + i), pieces);
+		}
+		
+		check(lastMove.get(lastMove.size() - 1).equals(new Set(BDeployed, "true")), lastMove);
+		return true;
+	}
+	
+	// Return exit move operations
 	List<Operation> exitMove(String movingPiece, String startSquare, 
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
@@ -145,6 +220,7 @@ public class GhostsLogic {
 		return operations;
 	}
 	
+	// Return normal move operations
 	List<Operation> normalMoveToEmptySquare(String movingPiece, String startSquare, 
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
@@ -155,6 +231,7 @@ public class GhostsLogic {
 		return operations;
 	}
 
+	// Return normal capture move operations
 	List<Operation> normalCapture(String movingPiece, String startSquare, 
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
@@ -169,6 +246,7 @@ public class GhostsLogic {
 		return operations;
 	}
 	
+	// Return capture and exit operations
 	List<Operation> captureAndExit(String movingPiece, String startSquare, 
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
@@ -195,6 +273,7 @@ public class GhostsLogic {
 		return operations;
 	}
 
+	// Determine if player is moving to empty square
 	boolean isEndSquareEmpty(String endSquare, GhostsState lastState) {
 		Map<Position, String> squares = lastState.getSquares();
 		int row = (int) (endSquare.charAt(1) - '0');
@@ -203,6 +282,7 @@ public class GhostsLogic {
 		return pieceStr == null;
 	}
 
+	//Determine if player is moving a good ghost to his exit square
 	boolean isMovingGoodToExit(String movingPiece, String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
@@ -220,6 +300,7 @@ public class GhostsLogic {
 		}
 	}
 
+	// Determine if game is ended by one player's all good or evil ghosts are captured
 	boolean notGoodOrEvilAllCaptured(GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		boolean hasGood = false, hasEvil = false;
@@ -299,6 +380,7 @@ public class GhostsLogic {
 		}
 	}
 
+	// Determine if player is moving from valid start square to valid end square
 	boolean validStartAndEndSquareNumber(String startSquare, String endSquare) {
 		check(startSquare.length() == 3, startSquare);
 		check(endSquare.length() == 3, endSquare);
@@ -316,6 +398,7 @@ public class GhostsLogic {
 				&& (i3 >= 0 && i3 < 6) && (i4 >= 0 && i4 < 6);
 	}
 
+	// Determine if movinf piece exists and it is right color
 	boolean movingPieceExistAndValid(String movingPiece, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
@@ -339,6 +422,7 @@ public class GhostsLogic {
 		}
 	}
 
+	// Determine if there is a piece on start square
 	boolean movingPieceWasInStartSquare(String movingPiece, String startSquare, 
 			GhostsState lastState) {
 		Map<Position, String> squares = lastState.getSquares();
@@ -348,6 +432,7 @@ public class GhostsLogic {
 		return movingPiece == pieceStr;
 	}
 
+	// Determine if player is moving a piece to capture his another piece
 	boolean sameSideCapture(String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
@@ -368,36 +453,6 @@ public class GhostsLogic {
 		return false;
 	}
 
-	List<Operation> getInitialMove(int whitePlayerId, int blackPlayerId) { // initial
-																			// state
-																			// may
-																			// have
-																			// problem!!!!!!*********************
-		List<Operation> operations = Lists.newArrayList();
-		// The order of operations: turn, isCheater, W, B, M, claim, C0...C51
-		operations.add(new Set(TURN, W));
-
-		// sets all 16 pieces: set(P0,"WGood"), set(P15,"BEvil")
-		for (int i = 0; i < 16; i++) {
-			operations.add(new Set(P + i, pieceIdToString(i)));
-		}
-
-		// shuffle(P0,...,P7) and shuffle(P8,...,P15)
-		operations.add(new Shuffle(getPiecesInRange(0, 7)));
-		operations.add(new Shuffle(getPiecesInRange(8, 15)));
-
-		// sets visibility
-		for (int i = 0; i < 8; i++) {
-			operations.add(new SetVisibility(P + i, ImmutableList
-					.of(whitePlayerId)));
-		}
-		for (int i = 8; i < 16; i++) {
-			operations.add(new SetVisibility(P + i, ImmutableList
-					.of(blackPlayerId)));
-		}
-		return operations;
-	}
-
 	String pieceIdToString(int pieceId) {
 		if (pieceId >= 0 && pieceId <= 3)
 			return "WGood";
@@ -409,7 +464,7 @@ public class GhostsLogic {
 			return "BEvil";
 	}
 	
-	/** return int value of the number after "P" in Px/xx */
+	// return int value of the number after "P" in Px/xx
 	int getIndexFromPieceName(String piecename) {
 		if (piecename.length() == 2)
 			return (int)(piecename.charAt(1) - '0');
@@ -427,7 +482,7 @@ public class GhostsLogic {
 		return keys;
 	}
 
-	/** Returns the color that should make the move. */
+	// Returns the color that should make the move. 
 	Color getExpectedMoveFromColor(Map<String, Object> lastState) {
 		if (lastState.isEmpty()) {
 			return Color.W;
@@ -448,6 +503,7 @@ public class GhostsLogic {
 			Map<String, Object> gameApiState) {
 		List<Optional<Piece>> Pieces = Lists.newArrayList();
 		Map<Position, String> Squares = Maps.newHashMap();
+		boolean wFinished, bFinished;
 
 		/** Convert Piece info to GhostsState form */
 		for (int i = 0; i < 16; i++) {
@@ -470,8 +526,14 @@ public class GhostsLogic {
 				Squares.put(pos, squareString);
 			}
 		}
+		
+		/** Convert Deploy info to GhostsState form */
+		String wDeployInfo = (String) gameApiState.get(WDeployed);
+		String bDeployInfo = (String) gameApiState.get(BDeployed);
+		wFinished = (wDeployInfo == "true") ? true : false;
+		bFinished = (bDeployInfo == "true") ? true : false;
 
 		return new GhostsState(Color.valueOf((String) gameApiState.get(TURN)),
-				ImmutableList.copyOf(Pieces), Squares);
+				ImmutableList.copyOf(Pieces), Squares, wFinished, bFinished);
 	}
 }

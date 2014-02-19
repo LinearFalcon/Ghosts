@@ -19,6 +19,8 @@ public class GhostsLogicTest {
 	private static final String TURN = "turn"; // turn of which player (either W or B)
 	private static final String W = "W"; // White hand
 	private static final String B = "B"; // Black hand
+	private static final String WDeployed = "WDeployed"; // white deploy key
+	private static final String BDeployed = "BDeployed"; // black deploy key
 	private final int wId = 23;
 	private final int bId = 24;
 	private final ImmutableList<Integer> visibleToW = ImmutableList.of(wId);
@@ -65,6 +67,8 @@ public class GhostsLogicTest {
 			.put(S[1][3], P[1]) // S13, WEvil
 			.put(S[4][1], P[8]) // S41, BGood
 			.put(S[4][3], P[9]) // S43, BEvil
+			.put(WDeployed, "true")
+			.put(BDeployed, "true")
 			.build();
 
 	private Map<String, Object> randomBlackState = ImmutableMap
@@ -78,6 +82,8 @@ public class GhostsLogicTest {
 			.put(S[1][3], P[1]) // S13, WEvil
 			.put(S[4][1], P[8]) // S41, BGood
 			.put(S[4][3], P[9]) // S43, BEvil
+			.put(WDeployed, "true")
+			.put(BDeployed, "true")
 			.build();
 
 	/** Assume black player has pieces which not stop white's move
@@ -94,6 +100,8 @@ public class GhostsLogicTest {
 			.put(S[4][4], P[2])
 			.put(S[4][1], P[8])
 			.put(S[4][3], P[9])
+			.put(WDeployed, "true")
+			.put(BDeployed, "true")
 			.build();
 
 	/** Assume white player has pieces which not stop black's move
@@ -109,7 +117,10 @@ public class GhostsLogicTest {
 			.put(S[1][3], P[1])
 			.put(S[0][1], P[8]) // S01, BGood
 			.put(S[1][5], P[9]) // S15, BGood
-			.put(S[5][2], P[10]).build();
+			.put(S[5][2], P[10])
+			.put(WDeployed, "true")
+			.put(BDeployed, "true")
+			.build();
 	
 	/** Assume black player has pieces which not stop white's move
 	 *  Black pieces are not visible
@@ -124,6 +135,8 @@ public class GhostsLogicTest {
 			.put(S[4][1], P[8])	// S41, some black ghost
 			.put(S[5][0], P[9]) // S50, some black ghost in white's exit
 			.put(S[2][0], P[10]) // some black ghost to maintain at least one good and one evil
+			.put(WDeployed, "true")
+			.put(BDeployed, "true")
 			.build();
 
 	/** we don't care about current state, just verify last operation/move on
@@ -135,7 +148,8 @@ public class GhostsLogicTest {
 	 */
 	private VerifyMove move(int lastMovePlayerId,
 			Map<String, Object> lastState, List<Operation> lastMove) {
-		return new VerifyMove(wId, playersInfo, emptyState, lastState, lastMove, lastMovePlayerId);
+		return new VerifyMove(playersInfo, emptyState, lastState, lastMove, 
+				lastMovePlayerId, ImmutableMap.<Integer, Integer>of());   //My game doesn't need pot
 	}
 
 	private void assertHacker(VerifyMove verifyMove) {
@@ -143,7 +157,130 @@ public class GhostsLogicTest {
 		assertEquals(verifyMove.getLastMovePlayerId(),
 				verifyDone.getHackerPlayerId());
 	}
+	
+	List<String> getPiecesInRange(int fromInclusive, int toInclusive) {
+		return ghostsLogic.getPiecesInRange(fromInclusive, toInclusive);
+	}
 
+	@Test
+	public void testWhiteDeploy() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
+				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
+				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
+				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
+				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
+				new Set(P[15], "BEvil"),
+				new Shuffle(getPiecesInRange(0, 7)),
+				new Shuffle(getPiecesInRange(8, 15)),
+				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
+				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
+				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
+				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
+				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
+				new SetVisibility(P[15], visibleToB),
+				new Set(S[0][1], P[0]), 
+				new Set(S[0][2], P[7]),
+				new Set(S[0][3], P[3]),
+				new Set(S[0][4], P[4]),
+				new Set(S[1][1], P[2]),
+				new Set(S[1][2], P[6]),
+				new Set(S[1][3], P[5]),
+				new Set(S[1][4], P[1]),
+				new Set(WDeployed, "true"));
+
+		VerifyMove verifyMove = move(wId, emptyState, operations);
+		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
+		assertEquals(0, verifyDone.getHackerPlayerId());
+	}
+	
+	@Test
+	public void testInvalidWhiteDeployByWrongTurn() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, W), 
+				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
+				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
+				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
+				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
+				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
+				new Set(P[15], "BEvil"),
+				new Shuffle(getPiecesInRange(0, 7)),
+				new Shuffle(getPiecesInRange(8, 15)),
+				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
+				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
+				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
+				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
+				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
+				new SetVisibility(P[15], visibleToB),
+				new Set(S[0][1], P[0]), 
+				new Set(S[0][2], P[7]),
+				new Set(S[0][3], P[3]),
+				new Set(S[0][4], P[4]),
+				new Set(S[1][1], P[2]),
+				new Set(S[1][2], P[6]),
+				new Set(S[1][3], P[5]),
+				new Set(S[1][4], P[1]),
+				new Set(WDeployed, "true"));
+
+		VerifyMove verifyMove = move(wId, emptyState, operations);
+		assertHacker(verifyMove);
+	}
+	
+	@Test
+	public void testInvalidWhiteDeployByWrongPiece() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, B), 
+				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
+				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
+				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
+				new Set(P[9], "WGood"), new Set(P[10], "BGood"), new Set(P[10], "BGood"),
+				new Set(P[12], "WEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
+				new Set(P[15], "WEvil"),
+				new Shuffle(getPiecesInRange(0, 7)),
+				new Shuffle(getPiecesInRange(8, 15)),
+				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
+				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
+				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
+				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
+				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
+				new SetVisibility(P[15], visibleToB),
+				new Set(S[0][1], P[0]), 
+				new Set(S[0][2], P[7]),
+				new Set(S[0][3], P[3]),
+				new Set(S[0][4], P[4]),
+				new Set(S[1][1], P[2]),
+				new Set(S[1][2], P[6]),
+				new Set(S[1][3], P[5]),
+				new Set(S[1][4], P[1]),
+				new Set(WDeployed, "true"));
+
+		VerifyMove verifyMove = move(wId, emptyState, operations);
+		assertHacker(verifyMove);
+	}
+	
+	@Test
+	public void testInvalidBlackDeployFirst() {
+
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new Set(TURN, W), 
+				new Set(S[4][1], P[8]), 
+				new Set(S[4][2], P[9]),
+				new Set(S[4][3], P[10]),
+				new Set(S[4][4], P[11]),
+				new Set(S[5][1], P[12]),
+				new Set(S[5][2], P[13]),
+				new Set(S[5][3], P[14]),
+				new Set(S[5][4], P[15]),
+				new Set(BDeployed, "true"));
+
+		VerifyMove verifyMove = move(bId, emptyState, operations);
+		assertHacker(verifyMove);
+	}
+	
 	@Test
 	public void testWhiteMoveUp() {
 
