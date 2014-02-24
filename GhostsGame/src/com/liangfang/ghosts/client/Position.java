@@ -43,9 +43,8 @@ public class Position {
 		return (row == 0 && col == 0) || (row == 0 && col == 5);
 	}
 
-	@Override
-	public String toString() {
-		return "(" + row + "," + col + ")";
+	public String toSquareString() {
+		return ("S" + row) + col;
 	}
 
 	@Override

@@ -47,67 +47,71 @@ public class GhostsLogic {
 
 	/** compare whether lastmove's operations equals to expected operations */
 	void checkMoveIsLegal(VerifyMove verifyMove) {
-		List<Operation> lastMove = verifyMove.getLastMove();
-		Map<String, Object> lastState = verifyMove.getLastState();
-
-		if (lastState.isEmpty()) {								                  // White player needs to deploy
-			check(doesWhiteDeployValid(lastMove, verifyMove.getPlayerIds().get(0), verifyMove.getPlayerIds().get(1)), lastMove); 
-		} else {
-		
-			GhostsState lastGameState = gameApiStateToGhostsState(lastState);
-		
-			if (lastGameState.isWhiteDeployed() && !lastGameState.isBlackDeployed()) {// Black player needs to deploy
-				check(doesBlackDeployValid(lastMove), lastMove);
-			} else {
-		
-				// Checking the operations are as expected.
-				List<Operation> expectedOperations = getExpectedOperations(lastGameState,
-						lastMove, verifyMove.getPlayerIds());
-				check(expectedOperations.equals(lastMove), expectedOperations, lastMove);
-
-				// We don't need to check that the correct player did the move.
-				// However, we do need to check the first move is done by the white player
-				if (verifyMove.getLastState().isEmpty()) {
-					check(verifyMove.getLastMovePlayerId() == verifyMove.getPlayerIds().get(0));
-				}
-			}
+		List<Operation> expectedOperations = getExpectedOperations(verifyMove);
+	    List<Operation> lastMove = verifyMove.getLastMove();
+	    check(expectedOperations.equals(lastMove), expectedOperations, lastMove);
+	    
+	    // We don't need to check that the correct player did the move.
+		// However, we do need to check the first move is done by the white player
+		if (verifyMove.getLastState().isEmpty()) {
+			check(verifyMove.getLastMovePlayerId() == verifyMove.getPlayerIds().get(0));
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	List<Operation> getExpectedOperations(GhostsState lastState,
-			List<Operation> lastMove, List<Integer> playerIds) {
+	List<Operation> getExpectedOperations(VerifyMove verifyMove) {
+		List<Operation> lastMove = verifyMove.getLastMove();
+	    Map<String, Object> lastApiState = verifyMove.getLastState();
+	    List<Integer> playerIds = verifyMove.getPlayerIds();
+	    
+	    if (lastApiState.isEmpty()) {							 						// White player needs to deploy
+	    	return getWhiteDeployOperations(lastMove, playerIds);
+	    } else {	    
+	    	int lastMovePlayerId = verifyMove.getLastMovePlayerId();
+	    	GhostsState lastState = gameApiStateToGhostsState(lastApiState,
+	    			Color.values()[playerIds.indexOf(lastMovePlayerId)], playerIds);
+	    	if (lastState.isWhiteDeployed() && !lastState.isBlackDeployed()) {			// Black player needs to deploy
+	    		return getBlackDeployOperations(lastMove);
+	    	} else {
+	    		String endSquare = ((Set) lastMove.get(1)).getKey(); 		// "Sxx", end square string S00~S55
+	    		String startSquare = ((Delete) lastMove.get(2)).getKey(); 	// "Sxx", start square string S00~S55
+	    		String movingPiece = (String) ((Set) lastMove.get(1)).getValue(); // "Px/xx", moving piece string, x or xx since could be 10~15
+
+	    		// check if in lastState, game already end because of all capturing of
+	    		// good or evil ghosts
+	    		check(notGoodOrEvilAllCaptured(lastState), lastState);
+
+	    		// check if in lastState, game already end because of good ghost is
+	    		// already in exit
+	    		check(!alreadyExit(lastState), lastState);
+
+	    		// check whether lastMove is valid
+	    		check(!(lastMove.isEmpty() || lastMove.size() < 3), lastMove);
+
+	    		// check whether lastMove's start and end square is valid
+	    		check(validStartAndEndSquareNumber(startSquare, endSquare),
+	    				startSquare, endSquare);
+
+	    		// check whether moving piece exists and it is in right color
+	    		check(movingPieceExistAndValid(movingPiece, lastState), movingPiece,
+	    				lastState);
+
+	    		// check whether moving piece was originally in start Square
+	    		check(movingPieceWasInStartSquare(movingPiece, startSquare, lastState),
+	    				movingPiece, startSquare, lastState);
+
+	    		// check wheter one ghost captures another ghost in same color
+	    		check(!sameSideCapture(endSquare, lastState), endSquare, lastState);
+
+	    		return getMove(movingPiece, startSquare, endSquare, lastState);
+	    	}
+	    }
+	}
+	
+	// Return operations regarding different situations
+	List<Operation> getMove(String movingPiece, String startSquare, 
+			String endSquare, GhostsState lastState) {
 		
-		String endSquare = ((Set) lastMove.get(1)).getKey(); 		// "Sxx", end square string S00~S55
-		String startSquare = ((Delete) lastMove.get(2)).getKey(); 	// "Sxx", start square string S00~S55
-		String movingPiece = (String) ((Set) lastMove.get(1)).getValue(); // "Px/xx", moving piece string, x or xx since could be 10~15
-
-		// check if in lastState, game already end because of all capturing of
-		// good or evil ghosts
-		check(notGoodOrEvilAllCaptured(lastState), lastState);
-
-		// check if in lastState, game already end because of good ghost is
-		// already in exit
-		check(!alreadyExit(lastState), lastState);
-
-		// check whether lastMove is valid
-		check(!(lastMove.isEmpty() || lastMove.size() < 3), lastMove);
-
-		// check whether lastMove's start and end square is valid
-		check(validStartAndEndSquareNumber(startSquare, endSquare),
-				startSquare, endSquare);
-
-		// check whether moving piece exists and it is in right color
-		check(movingPieceExistAndValid(movingPiece, lastState), movingPiece,
-				lastState);
-
-		// check whether moving piece was originally in start Square
-		check(movingPieceWasInStartSquare(movingPiece, startSquare, lastState),
-				movingPiece, startSquare, lastState);
-
-		// check wheter one ghost captures another ghost in same color
-		check(!sameSideCapture(endSquare, lastState), endSquare, lastState);
-
 		// Move to empty square can be either a normal move or successful exit
 		if (isEndSquareEmpty(endSquare, lastState)) {
 			if (isMovingGoodToExit(movingPiece, endSquare, lastState)) { // exit
@@ -125,8 +129,9 @@ public class GhostsLogic {
 	}
 	
 	// Determine if white player initial board and deploy ghosts in valid way
-	boolean doesWhiteDeployValid(List<Operation> lastMove, int whitePlayerId, int blackPlayerId) { 
-		
+	List<Operation> getWhiteDeployOperations(List<Operation> lastMove, List<Integer> playerIds) { 
+		int whitePlayerId = playerIds.get(0);
+	    int blackPlayerId = playerIds.get(1);
 		check(lastMove.get(0).equals(new Set(TURN, B)));		// next turn should be black deploy
 		// check if white sets all 16 pieces: set(P0,"WGood"), ..., set(P15,"BEvil")
 		for (int i = 0; i < 16; i++) {
@@ -166,11 +171,11 @@ public class GhostsLogic {
 		}
 		
 		check(lastMove.get(lastMove.size() - 1).equals(new Set(WDeployed, "true")), lastMove);
-		return true;
+		return lastMove;
 	}
 	
 	// Determine if black player deploy ghosts in valid way
-	boolean doesBlackDeployValid(List<Operation> lastMove) {
+	List<Operation> getBlackDeployOperations(List<Operation> lastMove) {
 		check(lastMove.get(0).equals(new Set(TURN, W)));		// next turn game begins by white moving first
 
 		//check if black deploy his ghosts in valid way
@@ -192,7 +197,7 @@ public class GhostsLogic {
 		}
 		
 		check(lastMove.get(lastMove.size() - 1).equals(new Set(BDeployed, "true")), lastMove);
-		return true;
+		return lastMove;
 	}
 	
 	// Return exit move operations
@@ -499,8 +504,8 @@ public class GhostsLogic {
 	}
 
 	@SuppressWarnings("unchecked")
-	private GhostsState gameApiStateToGhostsState(
-			Map<String, Object> gameApiState) {
+	GhostsState gameApiStateToGhostsState(Map<String, Object> gameApiState, 
+			Color turnOfColor, List<Integer> playerIds) {
 		List<Optional<Piece>> Pieces = Lists.newArrayList();
 		Map<Position, String> Squares = Maps.newHashMap();
 		boolean wFinished, bFinished;
@@ -533,7 +538,19 @@ public class GhostsLogic {
 		wFinished = (wDeployInfo == "true") ? true : false;
 		bFinished = (bDeployInfo == "true") ? true : false;
 
-		return new GhostsState(Color.valueOf((String) gameApiState.get(TURN)),
+		return new GhostsState(turnOfColor, ImmutableList.copyOf(playerIds),
 				ImmutableList.copyOf(Pieces), Squares, wFinished, bFinished);
+	}
+	
+	<T> List<T> concat(List<T> a, List<T> b) {
+	    return Lists.newArrayList(Iterables.concat(a, b));
+	}
+
+	<T> List<T> subtract(List<T> removeFrom, List<T> elementsToRemove) {
+	    check(removeFrom.containsAll(elementsToRemove), removeFrom, elementsToRemove);
+	    List<T> result = Lists.newArrayList(removeFrom);
+	    result.removeAll(elementsToRemove);
+	    check(removeFrom.size() == result.size() + elementsToRemove.size());
+	    return result;
 	}
 }

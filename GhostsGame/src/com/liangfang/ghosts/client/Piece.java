@@ -4,7 +4,7 @@ package com.liangfang.ghosts.client;
 
 //import com.google.common.base.Objects;
 
-public class Piece {
+public class Piece extends Equality {
 	private String pieceKind;
 
 	public Piece(String str) {
@@ -22,5 +22,10 @@ public class Piece {
 	
 	public boolean isBlackPiece() {
 		return pieceKind.charAt(0) == 'B';
+	}
+
+	@Override
+	public Object getId() {
+		return pieceKind;
 	}
 }

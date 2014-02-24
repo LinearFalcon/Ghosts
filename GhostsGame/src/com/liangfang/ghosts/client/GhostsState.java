@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 public class GhostsState {
 	private final Color turn;
-
+	private final ImmutableList<Integer> playerIds;
 	/**
 	 * Pieces has 16 piece representing P0 to P15 in order, some of entries will be null,
 	 * meaning not visible
@@ -21,18 +21,20 @@ public class GhostsState {
 	 * If map contains a null value, meaning there is no piece on the
 	 * square.
 	 * @arg String here is whether null or one of "P0"~"P15"
+	 * @arg Position here will be object of Position class
 	 */
 	private final Map<Position, String> Squares;
 	
-	// if one player hasn't deply his ghosts, then game cannot start
+	// if one player hasn't deploy his ghosts, then game cannot start
 	boolean wDeployFinished;
 	boolean bDeployFinished;
 	
 
-	public GhostsState(Color turn, ImmutableList<Optional<Piece>> Pieces,
+	public GhostsState(Color turn, ImmutableList<Integer> playerIds, ImmutableList<Optional<Piece>> Pieces,
 			Map<Position, String> Squares, boolean wDeployFinished, boolean bDeployFinished) {
 		super();
 		this.turn = checkNotNull(turn);
+		this.playerIds = checkNotNull(playerIds);
 		this.Pieces = checkNotNull(Pieces);
 		this.Squares = checkNotNull(Squares);
 		this.wDeployFinished = wDeployFinished;
@@ -59,4 +61,7 @@ public class GhostsState {
 		return bDeployFinished;
 	}
 
+	public ImmutableList<Integer> getPlayerIds() {
+	    return playerIds;
+	}
 }
