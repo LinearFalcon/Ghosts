@@ -64,4 +64,8 @@ public class GhostsState {
 	public ImmutableList<Integer> getPlayerIds() {
 	    return playerIds;
 	}
+	
+	public int getPlayerId(Color color) {
+	    return playerIds.get(color.ordinal());
+	}
 }

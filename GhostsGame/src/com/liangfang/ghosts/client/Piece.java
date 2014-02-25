@@ -6,14 +6,19 @@ package com.liangfang.ghosts.client;
 
 public class Piece extends Equality {
 	private String pieceKind;
+	private String pieceName;
 
-	public Piece(String str) {
-//		this.pieceString = checkNotNull(str);
-		this.pieceKind = str;
+	public Piece(String kind, String name) {
+		this.pieceKind = kind;
+		this.pieceName = name;
 	}
 
 	public String getPieceKind() {
 		return pieceKind;
+	}
+	
+	public String getPieceName() {
+		return pieceName;
 	}
 	
 	public boolean isWhitePiece() {

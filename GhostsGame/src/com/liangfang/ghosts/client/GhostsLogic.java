@@ -12,6 +12,7 @@ import com.liangfang.ghosts.client.GameApi.Delete;
 import com.liangfang.ghosts.client.GameApi.EndGame;
 import com.liangfang.ghosts.client.GameApi.Operation;
 import com.liangfang.ghosts.client.GameApi.Set;
+import com.liangfang.ghosts.client.GameApi.SetTurn;
 import com.liangfang.ghosts.client.GameApi.SetVisibility;
 import com.liangfang.ghosts.client.GameApi.Shuffle;
 import com.liangfang.ghosts.client.GameApi.VerifyMove;
@@ -34,6 +35,8 @@ public class GhostsLogic {
 	private static final String BDeployed = "BDeployed"; // black deploy key
 	private final int wId = 23;
 	private final int bId = 24;
+	private final ImmutableList<Integer> visibleToW = ImmutableList.of(wId);
+	private final ImmutableList<Integer> visibleToB = ImmutableList.of(bId);
 
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
@@ -64,14 +67,16 @@ public class GhostsLogic {
 	    Map<String, Object> lastApiState = verifyMove.getLastState();
 	    List<Integer> playerIds = verifyMove.getPlayerIds();
 	    
-	    if (lastApiState.isEmpty()) {							 						// White player needs to deploy
-	    	return getWhiteDeployOperations(lastMove, playerIds);
+	    if (lastApiState.isEmpty()) {							 						// White player needs to initialize board
+	    	return getBoardInitialOperations(playerIds);
 	    } else {	    
 	    	int lastMovePlayerId = verifyMove.getLastMovePlayerId();
 	    	GhostsState lastState = gameApiStateToGhostsState(lastApiState,
 	    			Color.values()[playerIds.indexOf(lastMovePlayerId)], playerIds);
-	    	if (lastState.isWhiteDeployed() && !lastState.isBlackDeployed()) {			// Black player needs to deploy
-	    		return getBlackDeployOperations(lastMove);
+	    	if (!lastState.isWhiteDeployed()) {											// White player needs to deploy
+	    		return getWhiteDeployOperations(lastMove, playerIds);
+	    	} else if (!lastState.isBlackDeployed()) {									// Black player needs to deploy
+	    		return getBlackDeployOperations(lastMove, playerIds);
 	    	} else {
 	    		String endSquare = ((Set) lastMove.get(1)).getKey(); 		// "Sxx", end square string S00~S55
 	    		String startSquare = ((Delete) lastMove.get(2)).getKey(); 	// "Sxx", start square string S00~S55
@@ -132,7 +137,8 @@ public class GhostsLogic {
 	List<Operation> getWhiteDeployOperations(List<Operation> lastMove, List<Integer> playerIds) { 
 		int whitePlayerId = playerIds.get(0);
 	    int blackPlayerId = playerIds.get(1);
-		check(lastMove.get(0).equals(new Set(TURN, B)));		// next turn should be black deploy
+		check(lastMove.get(0).equals(new SetTurn(blackPlayerId)));		// next turn should be black deploy
+/*		
 		// check if white sets all 16 pieces: set(P0,"WGood"), ..., set(P15,"BEvil")
 		for (int i = 0; i < 16; i++) {
 			check(lastMove.get(i + 1).equals(new Set(P + i, pieceIdToString(i))));
@@ -151,13 +157,13 @@ public class GhostsLogic {
 			check(lastMove.get(i + 19).equals(new SetVisibility(P + i, ImmutableList
 					.of(blackPlayerId))));
 		} 
-		
+*/		
 		//check if white deploy his ghosts in valid way
 		ArrayList<String> squares = new ArrayList<String>();
 		ArrayList<String> pieces = new ArrayList<String>();
 		for (int i = 0; i < 8; i++) {			
-			String square = ((Set) lastMove.get(i + 35)).getKey();
-			String piece = (String)((Set) lastMove.get(i + 35)).getValue();
+			String square = ((Set) lastMove.get(i + 1)).getKey();
+			String piece = (String)((Set) lastMove.get(i + 1)).getValue();
 			squares.add(square);
 			pieces.add(piece);
 		}
@@ -175,8 +181,10 @@ public class GhostsLogic {
 	}
 	
 	// Determine if black player deploy ghosts in valid way
-	List<Operation> getBlackDeployOperations(List<Operation> lastMove) {
-		check(lastMove.get(0).equals(new Set(TURN, W)));		// next turn game begins by white moving first
+	List<Operation> getBlackDeployOperations(List<Operation> lastMove, List<Integer> playerIds) {
+		int whitePlayerId = playerIds.get(0);
+	    int blackPlayerId = playerIds.get(1);
+		check(lastMove.get(0).equals(new SetTurn(whitePlayerId)));		// next turn game begins by white moving first
 
 		//check if black deploy his ghosts in valid way
 		ArrayList<String> squares = new ArrayList<String>();
@@ -207,7 +215,7 @@ public class GhostsLogic {
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite().name()));
+		operations.add(new SetTurn(lastState.getPlayerId(turn.getOpposite())));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		
@@ -230,7 +238,7 @@ public class GhostsLogic {
 			String endSquare, GhostsState lastState) {
 		Color turn = lastState.getTurn();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite().name()));
+		operations.add(new SetTurn(lastState.getPlayerId(turn.getOpposite())));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		return operations;
@@ -242,7 +250,7 @@ public class GhostsLogic {
 		Color turn = lastState.getTurn();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite().name()));
+		operations.add(new SetTurn(lastState.getPlayerId(turn.getOpposite())));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		int row = (int) (endSquare.charAt(1) - '0');
@@ -258,7 +266,7 @@ public class GhostsLogic {
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Operation> operations = Lists.newArrayList();
-		operations.add(new Set(TURN, turn.getOpposite().name()));
+		operations.add(new SetTurn(lastState.getPlayerId(turn.getOpposite())));
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		int row = (int) (endSquare.charAt(1) - '0');
@@ -517,7 +525,7 @@ public class GhostsLogic {
 			if (pieceString == null) { // means not visible
 				piece = null;
 			} else {
-				piece = new Piece(pieceString);
+				piece = new Piece(pieceString, P + i);
 			}
 			Pieces.add(Optional.fromNullable(piece));
 		}
@@ -552,5 +560,35 @@ public class GhostsLogic {
 	    result.removeAll(elementsToRemove);
 	    check(removeFrom.size() == result.size() + elementsToRemove.size());
 	    return result;
+	}
+	
+	// Used in GhostsPresenter class
+	List<Operation> getBoardInitialOperations(List<Integer> playerIds) {
+		int whitePlayerId = playerIds.get(0);
+	    int blackPlayerId = playerIds.get(1);
+	    ImmutableList<Integer> visibleToW = ImmutableList.of(whitePlayerId);
+	    ImmutableList<Integer> visibleToB = ImmutableList.of(blackPlayerId);
+		String[] P = new String[16];
+		for (int i = 0; i < 16; i++) {
+			P[i] = "P" + i;
+		}
+		
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new SetTurn(whitePlayerId), 
+				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
+				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
+				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
+				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
+				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
+				new Set(P[15], "BEvil"),
+				new Shuffle(getPiecesInRange(0, 7)),
+				new Shuffle(getPiecesInRange(8, 15)),
+				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
+				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
+				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
+				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
+				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
+				new SetVisibility(P[15], visibleToB));
+		return operations;
 	}
 }

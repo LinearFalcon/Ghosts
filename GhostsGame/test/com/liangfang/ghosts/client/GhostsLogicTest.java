@@ -55,10 +55,42 @@ public class GhostsLogicTest {
 		return arr;
 	}
 
+	private Map<String, Object> whiteDeployState = ImmutableMap
+			.<String, Object> builder()
+			.put(P[0], "WGood")
+			.put(P[1], "WGood")
+			.put(P[2], "WGood")
+			.put(P[3], "WGood")
+			.put(P[4], "WEvil")
+			.put(P[5], "WEvil")
+			.put(P[6], "WEvil")
+			.put(P[7], "WEvil")
+			.build();
+	
+	private Map<String, Object> blackDeployState = ImmutableMap
+			.<String, Object> builder()
+			.put(P[8], "BGood")
+			.put(P[9], "BGood")
+			.put(P[10], "BGood")
+			.put(P[11], "BGood")
+			.put(P[12], "BEvil")
+			.put(P[13], "BEvil")
+			.put(P[14], "BEvil")
+			.put(P[15], "BEvil")
+			.put(S[0][1], P[0]) 
+			.put(S[0][2], P[1]) 
+			.put(S[0][3], P[2]) 
+			.put(S[0][4], P[3]) 
+			.put(S[1][1], P[4]) 
+			.put(S[1][2], P[5]) 
+			.put(S[1][3], P[6]) 
+			.put(S[1][4], P[7])
+			.put(WDeployed, "true")
+			.build();
+			
 	/** Here we don't need to consider visibility */
 	private Map<String, Object> randomWhiteState = ImmutableMap
 			.<String, Object> builder()
-			.put(TURN, W)
 			.put(P[0], "WGood")
 			.put(P[1], "WEvil")
 			.put(P[8], "BGood")
@@ -73,7 +105,6 @@ public class GhostsLogicTest {
 
 	private Map<String, Object> randomBlackState = ImmutableMap
 			.<String, Object> builder()
-			.put(TURN, B)
 			.put(P[0], "WGood")
 			.put(P[1], "WEvil")
 			.put(P[8], "BGood")
@@ -91,7 +122,6 @@ public class GhostsLogicTest {
 	 */
 	private Map<String, Object> whiteToExitState = ImmutableMap
 			.<String, Object> builder()
-			.put(TURN, W)
 			.put(P[0], "WGood")
 			.put(P[1], "WGood")
 			.put(P[2], "WEvil")
@@ -109,7 +139,6 @@ public class GhostsLogicTest {
 	 */
 	private Map<String, Object> blackToExitState = ImmutableMap
 			.<String, Object> builder()
-			.put(TURN, B)
 			.put(P[8], "BGood")
 			.put(P[9], "BGood")
 			.put(P[10], "BEvil")
@@ -127,7 +156,6 @@ public class GhostsLogicTest {
 	 */
 	private Map<String, Object> captureState = ImmutableMap
 			.<String, Object> builder()
-			.put(TURN, W)
 			.put(P[0], "WGood")
 			.put(P[1], "WEvil")
 			.put(S[4][0], P[0]) // S40, WGood
@@ -163,10 +191,10 @@ public class GhostsLogicTest {
 	}
 
 	@Test
-	public void testWhiteDeploy() {
+	public void testBoardInitial() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(wId), 
 				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
 				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
 				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
@@ -180,16 +208,7 @@ public class GhostsLogicTest {
 				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
 				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
 				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
-				new SetVisibility(P[15], visibleToB),
-				new Set(S[0][1], P[0]), 
-				new Set(S[0][2], P[7]),
-				new Set(S[0][3], P[3]),
-				new Set(S[0][4], P[4]),
-				new Set(S[1][1], P[2]),
-				new Set(S[1][2], P[6]),
-				new Set(S[1][3], P[5]),
-				new Set(S[1][4], P[1]),
-				new Set(WDeployed, "true"));
+				new SetVisibility(P[15], visibleToB));
 
 		VerifyMove verifyMove = move(wId, emptyState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -197,24 +216,9 @@ public class GhostsLogicTest {
 	}
 	
 	@Test
-	public void testInvalidWhiteDeployByWrongTurn() {
-
+	public void testWhiteDeploy() {
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, W), 
-				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
-				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
-				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
-				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
-				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
-				new Set(P[15], "BEvil"),
-				new Shuffle(getPiecesInRange(0, 7)),
-				new Shuffle(getPiecesInRange(8, 15)),
-				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
-				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
-				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
-				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
-				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
-				new SetVisibility(P[15], visibleToB),
+				new SetTurn(bId),
 				new Set(S[0][1], P[0]), 
 				new Set(S[0][2], P[7]),
 				new Set(S[0][3], P[3]),
@@ -224,49 +228,17 @@ public class GhostsLogicTest {
 				new Set(S[1][3], P[5]),
 				new Set(S[1][4], P[1]),
 				new Set(WDeployed, "true"));
-
-		VerifyMove verifyMove = move(wId, emptyState, operations);
-		assertHacker(verifyMove);
-	}
-	
-	@Test
-	public void testInvalidWhiteDeployByWrongPiece() {
-
-		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
-				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
-				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
-				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
-				new Set(P[9], "WGood"), new Set(P[10], "BGood"), new Set(P[10], "BGood"),
-				new Set(P[12], "WEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
-				new Set(P[15], "WEvil"),
-				new Shuffle(getPiecesInRange(0, 7)),
-				new Shuffle(getPiecesInRange(8, 15)),
-				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
-				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
-				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
-				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
-				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
-				new SetVisibility(P[15], visibleToB),
-				new Set(S[0][1], P[0]), 
-				new Set(S[0][2], P[7]),
-				new Set(S[0][3], P[3]),
-				new Set(S[0][4], P[4]),
-				new Set(S[1][1], P[2]),
-				new Set(S[1][2], P[6]),
-				new Set(S[1][3], P[5]),
-				new Set(S[1][4], P[1]),
-				new Set(WDeployed, "true"));
-
-		VerifyMove verifyMove = move(wId, emptyState, operations);
-		assertHacker(verifyMove);
+		
+		VerifyMove verifyMove = move(wId, whiteDeployState, operations);
+		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
+		assertEquals(0, verifyDone.getHackerPlayerId());
 	}
 	
 	@Test
 	public void testInvalidBlackDeployFirst() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, W), 
+				new SetTurn(wId), 
 				new Set(S[4][1], P[8]), 
 				new Set(S[4][2], P[9]),
 				new Set(S[4][3], P[10]),
@@ -282,10 +254,29 @@ public class GhostsLogicTest {
 	}
 	
 	@Test
+	public void testBlackDeploy() {
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new SetTurn(wId),
+				new Set(S[4][1], P[8]), 
+				new Set(S[4][2], P[9]),
+				new Set(S[4][3], P[10]),
+				new Set(S[4][4], P[11]),
+				new Set(S[5][1], P[12]),
+				new Set(S[5][2], P[13]),
+				new Set(S[5][3], P[14]),
+				new Set(S[5][4], P[15]),
+				new Set(BDeployed, "true"));
+		
+		VerifyMove verifyMove = move(bId, blackDeployState, operations);
+		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
+		assertEquals(0, verifyDone.getHackerPlayerId());
+	}
+	
+	@Test
 	public void testWhiteMoveUp() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[2][1], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[2][1], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -295,8 +286,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalWhiteMoveTwoSteps() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[3][1], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[3][1], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		assertHacker(verifyMove);
@@ -305,8 +296,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testWhiteMoveLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[1][0], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[1][0], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -316,8 +307,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalWhiteMoveLeftUp() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[2][0], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[2][0], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		assertHacker(verifyMove);
@@ -326,8 +317,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testWhiteMoveRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[1][2], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[1][2], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -337,8 +328,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalWhiteMoveRightUp() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[2][2], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[2][2], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		assertHacker(verifyMove);
@@ -347,8 +338,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testWhiteMoveDown() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[0][1], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[0][1], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -358,8 +349,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalWhiteMoveDownRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				B), new Set(S[0][2], P[0]), new Delete(S[1][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(bId), 
+				new Set(S[0][2], P[0]), new Delete(S[1][1]));
 
 		VerifyMove verifyMove = move(wId, randomWhiteState, operations);
 		assertHacker(verifyMove);
@@ -368,8 +359,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackMoveUp() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[5][1], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[5][1], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -379,8 +370,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalBlackMoveUpLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[5][0], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[5][0], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		assertHacker(verifyMove);
@@ -389,8 +380,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackMoveDown() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[3][1], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[3][1], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -400,8 +391,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalBlackMoveTwoSteps() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[2][1], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[2][1], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		assertHacker(verifyMove);
@@ -410,8 +401,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackMoveLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[4][0], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[4][0], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -421,8 +412,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalBlackMoveDownLeft() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[3][0], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[3][0], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		assertHacker(verifyMove);
@@ -431,8 +422,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testBlackMoveRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[4][2], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[4][2], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		VerifyMoveDone verifyDone = new GhostsLogic().verify(verifyMove);
@@ -442,8 +433,8 @@ public class GhostsLogicTest {
 	@Test
 	public void testIllegalBlackMoveDownRight() {
 
-		List<Operation> operations = ImmutableList.<Operation> of(new Set(TURN,
-				W), new Set(S[3][2], P[8]), new Delete(S[4][1]));
+		List<Operation> operations = ImmutableList.<Operation> of(new SetTurn(wId), 
+				new Set(S[3][2], P[8]), new Delete(S[4][1]));
 
 		VerifyMove verifyMove = move(bId, randomBlackState, operations);
 		assertHacker(verifyMove);
@@ -453,7 +444,7 @@ public class GhostsLogicTest {
 	public void testNotMoving() {
 		
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[1][1], P[0]), 
 				new Delete(S[1][1]));
 
@@ -465,7 +456,7 @@ public class GhostsLogicTest {
 	public void testWrongTurnMove() {
 		
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, W), 
+				new SetTurn(wId), 
 				new Set(S[3][1], P[8]), 
 				new Delete(S[4][1]));
 
@@ -477,7 +468,7 @@ public class GhostsLogicTest {
 	public void testMovingPieceNotExist() {
 		
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[3][2], P[8]), 
 				new Delete(S[3][1]));
 
@@ -489,7 +480,7 @@ public class GhostsLogicTest {
 	public void testNormalWhiteCaptureBlack() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[4][1], P[0]), 
 				new Delete(S[4][0]),
 				new Delete(P[8]));
@@ -503,7 +494,7 @@ public class GhostsLogicTest {
 	public void testCaptureSameSide() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[3][0], P[0]), 
 				new Delete(S[4][0]),
 				new Delete(P[1]));
@@ -516,7 +507,7 @@ public class GhostsLogicTest {
 	public void testWhiteCaptureAndExit() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[5][0], P[0]), 
 				new Delete(S[4][0]),
 				new Delete(P[9]),
@@ -533,7 +524,7 @@ public class GhostsLogicTest {
 	public void testBlackExitRight() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, W), 
+				new SetTurn(wId), 
 				new Set(S[0][5], P[9]), 
 				new Delete(S[1][5]),
 				new SetVisibility(P[8]), 
@@ -550,7 +541,7 @@ public class GhostsLogicTest {
 	public void testBlackExitLeft() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, W), 
+				new SetTurn(wId), 
 				new Set(S[0][0], P[8]), 
 				new Delete(S[0][1]),
 				new SetVisibility(P[8]), 
@@ -567,7 +558,7 @@ public class GhostsLogicTest {
 	public void testWhiteExitRight() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[5][5], P[1]), 
 				new Delete(S[5][4]),
 				new SetVisibility(P[0]), 
@@ -584,7 +575,7 @@ public class GhostsLogicTest {
 	public void testWhiteExitLeft() {
 
 		List<Operation> operations = ImmutableList.<Operation> of(
-				new Set(TURN, B), 
+				new SetTurn(bId), 
 				new Set(S[5][0], P[0]), 
 				new Delete(S[4][0]),
 				new SetVisibility(P[0]), 
