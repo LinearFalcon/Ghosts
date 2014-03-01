@@ -133,6 +133,36 @@ public class GhostsLogic {
 		}
 	}
 	
+	// Used in GhostsPresenter class
+	List<Operation> getBoardInitialOperations(List<Integer> playerIds) {
+		int whitePlayerId = playerIds.get(0);
+	    int blackPlayerId = playerIds.get(1);
+	    ImmutableList<Integer> visibleToW = ImmutableList.of(whitePlayerId);
+	    ImmutableList<Integer> visibleToB = ImmutableList.of(blackPlayerId);
+		String[] P = new String[16];
+		for (int i = 0; i < 16; i++) {
+			P[i] = "P" + i;
+		}
+			
+		List<Operation> operations = ImmutableList.<Operation> of(
+				new SetTurn(whitePlayerId), 
+				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
+				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
+				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
+				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
+				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
+				new Set(P[15], "BEvil"),
+				new Shuffle(getPiecesInRange(0, 7)),
+				new Shuffle(getPiecesInRange(8, 15)),
+				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
+				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
+				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
+				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
+				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
+				new SetVisibility(P[15], visibleToB));
+		return operations;
+	}
+	
 	// Determine if white player initial board and deploy ghosts in valid way
 	List<Operation> getWhiteDeployOperations(List<Operation> lastMove, List<Integer> playerIds) { 
 		int whitePlayerId = playerIds.get(0);
@@ -560,35 +590,5 @@ public class GhostsLogic {
 	    result.removeAll(elementsToRemove);
 	    check(removeFrom.size() == result.size() + elementsToRemove.size());
 	    return result;
-	}
-	
-	// Used in GhostsPresenter class
-	List<Operation> getBoardInitialOperations(List<Integer> playerIds) {
-		int whitePlayerId = playerIds.get(0);
-	    int blackPlayerId = playerIds.get(1);
-	    ImmutableList<Integer> visibleToW = ImmutableList.of(whitePlayerId);
-	    ImmutableList<Integer> visibleToB = ImmutableList.of(blackPlayerId);
-		String[] P = new String[16];
-		for (int i = 0; i < 16; i++) {
-			P[i] = "P" + i;
-		}
-		
-		List<Operation> operations = ImmutableList.<Operation> of(
-				new SetTurn(whitePlayerId), 
-				new Set(P[0], "WGood"), new Set(P[1], "WGood"), new Set(P[2], "WGood"),
-				new Set(P[3], "WGood"), new Set(P[4], "WEvil"), new Set(P[5], "WEvil"),
-				new Set(P[6], "WEvil"), new Set(P[7], "WEvil"),	new Set(P[8], "BGood"),
-				new Set(P[9], "BGood"), new Set(P[10], "BGood"), new Set(P[11], "BGood"),
-				new Set(P[12], "BEvil"), new Set(P[13], "BEvil"), new Set(P[14], "BEvil"),
-				new Set(P[15], "BEvil"),
-				new Shuffle(getPiecesInRange(0, 7)),
-				new Shuffle(getPiecesInRange(8, 15)),
-				new SetVisibility(P[0], visibleToW), new SetVisibility(P[1], visibleToW), new SetVisibility(P[2], visibleToW),
-				new SetVisibility(P[3], visibleToW), new SetVisibility(P[4], visibleToW), new SetVisibility(P[5], visibleToW),
-				new SetVisibility(P[6], visibleToW), new SetVisibility(P[7], visibleToW),	new SetVisibility(P[8], visibleToB),
-				new SetVisibility(P[9], visibleToB), new SetVisibility(P[10], visibleToB), new SetVisibility(P[11], visibleToB),
-				new SetVisibility(P[12], visibleToB), new SetVisibility(P[13], visibleToB), new SetVisibility(P[14], visibleToB),
-				new SetVisibility(P[15], visibleToB));
-		return operations;
 	}
 }

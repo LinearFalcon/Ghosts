@@ -84,8 +84,8 @@ public class GhostsPresenter {
 	/** A viewer doesn't have a color. */
 	private Optional<Color> myColor;
 	private GhostsState ghostsState;
-	private List<Piece> selectedPiece;
-	private List<Piece> selectedPieceToDeploy = Lists.newArrayList();
+	private List<Piece> selectedPieceToMove;
+	private List<Piece> selectedPieceToDeploy;
 	private List<Boolean> pieceDeployed = Lists.newArrayList();
 	private List<Operation> deployOperations = Lists.newArrayList();			// Store deploy operations "Set(Sxx, Pxx)"
 
@@ -103,7 +103,11 @@ public class GhostsPresenter {
 	    int yourPlayerIndex = updateUI.getPlayerIndex(yourPlayerId);
 	    myColor = yourPlayerIndex == 0 ? Optional.of(Color.W)
 	        : yourPlayerIndex == 1 ? Optional.of(Color.B) : Optional.<Color>absent();
-	    selectedPiece = Lists.newArrayList();
+	    selectedPieceToMove = Lists.newArrayList();
+	    selectedPieceToDeploy = Lists.newArrayList();
+//	    selectedPieceToDeploy = Lists.newArrayList();
+//		pieceDeployed = Lists.newArrayList();
+//		deployOperations = Lists.newArrayList();
 	    for (int i = 0; i < 16; i++) {								// Initialize pieceDeployed
 			pieceDeployed.add(false);
 		}
@@ -153,12 +157,13 @@ public class GhostsPresenter {
 	}
 
 	private void chooseNextPieceToDeploy() {
-		view.chooseNextPieceToDeploy(selectedPieceToDeploy, pieceDeployed);
+//		System.out.println(selectedPieceToDeploy + " " + pieceDeployed);							mock treat this call as same one
+		view.chooseNextPieceToDeploy(Lists.newArrayList(selectedPieceToDeploy), pieceDeployed);
 	}
 	
 	private void chooseNextPieceToMove() {
-		view.chooseNextPieceToMove(ImmutableList.copyOf(selectedPieceToDeploy),
-				ghostsLogic.subtract(getMyPieces(), selectedPiece));
+		view.chooseNextPieceToMove(Lists.newArrayList(selectedPieceToMove),
+				ghostsLogic.subtract(getMyPieces(), selectedPieceToMove));
 	}
 
 	/**
@@ -172,12 +177,12 @@ public class GhostsPresenter {
 		} else {
 			check(piece.isBlackPiece());
 		}
-		if (selectedPiece.contains(piece)) {
-			selectedPiece.remove(piece);
-		} else if (!selectedPiece.contains(piece) && selectedPiece.size() < 1) {
-			selectedPiece.add(piece);
+		if (selectedPieceToMove.contains(piece)) {
+			selectedPieceToMove.remove(piece);
+		} else if (!selectedPieceToMove.contains(piece) && selectedPieceToMove.size() < 1) {
+			selectedPieceToMove.add(piece);
 		}
-		check(!selectedPiece.isEmpty());		// If already choose a piece, then can choose where to move
+		check(!selectedPieceToMove.isEmpty());		// If already choose a piece, then can choose where to move
 		view.chooseSquareToMove(getPossiblePositionsToMove());						
 	}
 
@@ -186,9 +191,9 @@ public class GhostsPresenter {
 	 * the presenter called {@link View#chooseSquareToMove}.
 	 */
 	public void squareSelectedToMove(Position endPosition) {
-		check(isMyTurn() && !selectedPiece.isEmpty()
+		check(isMyTurn() && !selectedPieceToMove.isEmpty()
 				&& getPossiblePositionsToMove().contains(endPosition));
-		Piece p = selectedPiece.get(0);
+		Piece p = selectedPieceToMove.get(0);
 		String movingPiece, startSquare;
 		movingPiece = p.getPieceName();
 		startSquare = getSquarePositionFromPieceName(movingPiece).toSquareString();
@@ -212,6 +217,7 @@ public class GhostsPresenter {
 			selectedPieceToDeploy.add(piece);
 		}
 		check(!selectedPieceToDeploy.isEmpty());		// If already choose a piece, then can choose where to deploy
+//		System.out.println(getPossiblePositionsToDeploy());
 		view.chooseSquareToDeploy(getPossiblePositionsToDeploy());
 	}
 	
@@ -222,6 +228,7 @@ public class GhostsPresenter {
 		deployOperations.add(new Set(deployPosition.toSquareString(), p.getPieceName()));
 //		System.out.println(ghostsLogic.getIndexFromPieceName(p.getPieceName()));
 		pieceDeployed.set(ghostsLogic.getIndexFromPieceName(p.getPieceName()), true);
+		selectedPieceToDeploy.clear();
 		chooseNextPieceToDeploy();
 	}
 	
@@ -260,7 +267,7 @@ public class GhostsPresenter {
 	 * Position scan order: down, up, left, right
 	 */
 	private List<Position> getPossiblePositionsToMove() {		
-		Piece p = selectedPiece.get(0);
+		Piece p = selectedPieceToMove.get(0);
 		String movingPiece;
 		movingPiece = p.getPieceName();										
 		Position origin = getSquarePositionFromPieceName(movingPiece);

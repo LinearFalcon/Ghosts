@@ -329,7 +329,33 @@ public class GhostsPresenterTest {
 		verify(mockContainer).sendMakeMove(operations);
 	}
 	
-	
+	@Test
+	public void testWhiteDeployStateForWSelectedPiecePrepareSelectSquare() {
+		UpdateUI updateUI = createUpdateUI(wId, wId, whiteDeployState);
+		GhostsState ghostsState =
+		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
+		ghostsPresenter.updateUI(updateUI);
+		List<Piece> myPieces = getPieces(wId, ghostsState);
+		ghostsPresenter.pieceSelectedToDeploy(myPieces.get(0));
+		ghostsPresenter.squareSelectedToDeploy(new Position(0, 1));
+		
+		List<Boolean> pieceDeployed = ImmutableList.<Boolean> of(
+				true, false, false, false, false, false, false, false,
+				false, false, false, false, false, false, false, false);
+		verify(mockView, times(2)).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed);		// not clear*********************
+		List<Position> possibleSquares = ImmutableList.<Position> of(
+				new Position(0, 1),
+				new Position(0, 2),
+				new Position(0, 3),
+				new Position(0, 4),
+				new Position(1, 1),
+				new Position(1, 2),
+				new Position(1, 3),
+				new Position(1, 4));
+		verify(mockView).chooseSquareToDeploy(possibleSquares);
+//		pieceDeployed.set(0, true);
+//		verify(mockView).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed);
+	}
 
 	private UpdateUI createUpdateUI(int yourPlayerId, int turnOfPlayerId,
 			Map<String, Object> state) {
