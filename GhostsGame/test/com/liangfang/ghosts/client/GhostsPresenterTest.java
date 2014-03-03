@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -118,14 +119,14 @@ public class GhostsPresenterTest {
 			.put(P[9], "BGood").put(P[10], "BGood").put(P[11], "BGood")
 			.put(P[12], "BEvil").put(P[13], "BEvil").put(P[14], "BEvil")
 			.put(P[15], "BEvil")
-			.put(S[0][1], P[0]) 
-			.put(S[0][2], P[1]) 
-			.put(S[0][3], P[2]) 
-			.put(S[0][4], P[3]) 
-			.put(S[1][1], P[4]) 
-			.put(S[1][2], P[5]) 
-			.put(S[1][3], P[6]) 
-			.put(S[1][4], P[7]) 
+			.put(S[5][1], P[0]) 
+			.put(S[5][2], P[1]) 
+			.put(S[5][3], P[2]) 
+			.put(S[5][4], P[3]) 
+			.put(S[4][1], P[4]) 
+			.put(S[4][2], P[5]) 
+			.put(S[4][3], P[6]) 
+			.put(S[4][4], P[7]) 
 			.put(WDeployed, "true")
 			.build();
 	
@@ -141,22 +142,22 @@ public class GhostsPresenterTest {
 			.put(P[9], "BGood").put(P[10], "BGood").put(P[11], "BGood")
 			.put(P[12], "BEvil").put(P[13], "BEvil").put(P[14], "BEvil")
 			.put(P[15], "BEvil")
-			.put(S[0][1], P[0]) 
-			.put(S[0][2], P[1]) 
-			.put(S[0][3], P[2]) 
-			.put(S[0][4], P[3]) 
-			.put(S[1][1], P[4]) 
-			.put(S[1][2], P[5]) 
-			.put(S[1][3], P[6]) 
-			.put(S[1][4], P[7])
-			.put(S[4][1], P[8]) 
-			.put(S[4][2], P[9]) 
-			.put(S[4][3], P[10]) 
-			.put(S[4][4], P[11]) 
-			.put(S[5][1], P[12]) 
-			.put(S[5][2], P[13]) 
-			.put(S[5][3], P[14]) 
-			.put(S[5][4], P[15]) 
+			.put(S[5][1], P[0]) 
+			.put(S[5][2], P[1]) 
+			.put(S[5][3], P[2]) 
+			.put(S[5][4], P[3]) 
+			.put(S[4][1], P[4]) 
+			.put(S[4][2], P[5]) 
+			.put(S[4][3], P[6]) 
+			.put(S[4][4], P[7])
+			.put(S[1][1], P[8]) 
+			.put(S[1][2], P[9]) 
+			.put(S[1][3], P[10]) 
+			.put(S[1][4], P[11]) 
+			.put(S[0][1], P[12]) 
+			.put(S[0][2], P[13]) 
+			.put(S[0][3], P[14]) 
+			.put(S[0][4], P[15]) 
 			.put(WDeployed, "true")
 			.put(BDeployed, "true")
 			.build();
@@ -177,7 +178,7 @@ public class GhostsPresenterTest {
 		verifyNoMoreInteractions(mockContainer);
 		verifyNoMoreInteractions(mockView);
 	}
-
+/*
 	@Test
 	public void testEmptyStateForW() {
 		ghostsPresenter.updateUI(createUpdateUI(wId, 0, emptyState));									// 0 means AI player???
@@ -196,12 +197,15 @@ public class GhostsPresenterTest {
 	
 	@Test
 	public void testWhiteDeployStateForW() {
-		ghostsPresenter.updateUI(createUpdateUI(wId, wId, whiteDeployState));
+		UpdateUI updateUI = createUpdateUI(wId, wId, whiteDeployState);
+		GhostsState ghostsState =
+		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
+		ghostsPresenter.updateUI(updateUI);
 		List<Boolean> pieceDeployed = Lists.newArrayList();
 		for (int i = 0; i < 16; i++) {								
 			pieceDeployed.add(false);
 		}
-		verify(mockView).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed); 
+		verify(mockView).chooseNextPieceToDeploy(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed); 
 	}
 	
 	@Test
@@ -216,12 +220,15 @@ public class GhostsPresenterTest {
 	
 	@Test
 	public void testWhiteDeployedBlackNotDeployedForB() {
-		ghostsPresenter.updateUI(createUpdateUI(bId, bId, whiteDeployedBlackNotDeployed));	
+		UpdateUI updateUI = createUpdateUI(bId, bId, whiteDeployedBlackNotDeployed);
+		GhostsState ghostsState =
+		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.B, playerIds);
+		ghostsPresenter.updateUI(updateUI);
 		List<Boolean> pieceDeployed = Lists.newArrayList();
 		for (int i = 0; i < 16; i++) {								
 			pieceDeployed.add(false);
 		}
-		verify(mockView).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed); 
+		verify(mockView).chooseNextPieceToDeploy(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed); 
 	}
 	
 	@Test
@@ -241,8 +248,12 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		verify(mockView).setPlayerState(getPieces(wId, ghostsState), ghostsState.getSquares());
-		verify(mockView).chooseNextPieceToMove(ImmutableList.<Piece>of(), getPieces(wId, ghostsState)); 
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
+		verify(mockView).chooseNextPieceToMove(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn()); 
 	}
 	
 	@Test
@@ -251,7 +262,11 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		verify(mockView).setPlayerState(getPieces(bId, ghostsState), ghostsState.getSquares());
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
 	}
 	
 	@Test
@@ -269,7 +284,11 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.B, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		verify(mockView).setPlayerState(getPieces(wId, ghostsState), ghostsState.getSquares());
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
 	}
 	
 	@Test
@@ -278,8 +297,12 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.B, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		verify(mockView).setPlayerState(getPieces(bId, ghostsState), ghostsState.getSquares());
-		verify(mockView).chooseNextPieceToMove(ImmutableList.<Piece>of(), getPieces(bId, ghostsState));
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
+		verify(mockView).chooseNextPieceToMove(getPiecesList(ghostsState.getPieces()), ghostsState.getSquares(), ghostsState.getTurn());
 	}
 	
 	@Test
@@ -290,21 +313,27 @@ public class GhostsPresenterTest {
 		ghostsPresenter.updateUI(updateUI);
 		verify(mockView).setViewerState(ghostsState.getSquares());
 	}
-	
+*/	
 	@Test
 	public void testBeginStateForWSelectedOnePiecePrepareSelectSquare() {
 		UpdateUI updateUI = createUpdateUI(wId, wId, beginState);
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		List<Piece> myPieces = getPieces(wId, ghostsState);
+		List<Piece> myPieces = getPiecesList(ghostsState.getPieces());
 		ghostsPresenter.pieceSelectedToMove(myPieces.get(4));  // choose P4
-		verify(mockView).setPlayerState(getPieces(wId, ghostsState), ghostsState.getSquares());
-		verify(mockView).chooseNextPieceToMove(ImmutableList.<Piece>of(), getPieces(wId, ghostsState));
+		
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(myPieces, ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
+		verify(mockView).chooseNextPieceToMove(myPieces, ghostsState.getSquares(), ghostsState.getTurn());
 		List<Position> possibleSquares = ImmutableList.<Position> of(
-				new Position(2, 1),
-				new Position(1, 0));
+				new Position(3, 1),
+				new Position(4, 0));
 		verify(mockView).chooseSquareToMove(possibleSquares);
+		
 	}
 	
 	@Test
@@ -313,19 +342,23 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		List<Piece> myPieces = getPieces(wId, ghostsState);
+		List<Piece> myPieces = getPiecesList(ghostsState.getPieces());
 		ghostsPresenter.pieceSelectedToMove(myPieces.get(4));  // choose P4
-		ghostsPresenter.squareSelectedToMove(new Position(2, 1));
-		verify(mockView).setPlayerState(getPieces(wId, ghostsState), ghostsState.getSquares());
-		verify(mockView).chooseNextPieceToMove(ImmutableList.<Piece>of(), getPieces(wId, ghostsState));
+		ghostsPresenter.squareSelectedToMove(new Position(3, 1));
+		List<Boolean> pieceDeployed = Lists.newArrayList();
+		for (int i = 0; i < 16; i++) {								
+			pieceDeployed.add(false);
+		}
+		verify(mockView).setPlayerState(myPieces, ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);
+		verify(mockView).chooseNextPieceToMove(myPieces, ghostsState.getSquares(), ghostsState.getTurn());
 		List<Position> possibleSquares = ImmutableList.<Position> of(
-				new Position(2, 1),
-				new Position(1, 0));
+				new Position(3, 1),
+				new Position(4, 0));
 		verify(mockView).chooseSquareToMove(possibleSquares);
 		List<Operation> operations = Lists.newArrayList();
 		operations.add(new SetTurn(bId));
-		operations.add(new Set("S21", "P4"));
-		operations.add(new Delete("S11"));
+		operations.add(new Set("S31", "P4"));
+		operations.add(new Delete("S41"));
 		verify(mockContainer).sendMakeMove(operations);
 	}
 	
@@ -335,24 +368,33 @@ public class GhostsPresenterTest {
 		GhostsState ghostsState =
 		        ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), Color.W, playerIds);
 		ghostsPresenter.updateUI(updateUI);
-		List<Piece> myPieces = getPieces(wId, ghostsState);
+		List<Piece> myPieces = getPiecesList(ghostsState.getPieces());
 		ghostsPresenter.pieceSelectedToDeploy(myPieces.get(0));
-		ghostsPresenter.squareSelectedToDeploy(new Position(0, 1));
+		ghostsPresenter.squareSelectedToDeploy(new Position(5, 1));
+		ghostsPresenter.pieceSelectedToDeploy(myPieces.get(1));
+		ghostsPresenter.squareSelectedToDeploy(new Position(4, 1));
+//		ghostsPresenter.pieceSelectedToDeploy(myPieces.get(2));
+//		ghostsPresenter.squareSelectedToDeploy(new Position(4, 2));
 		
 		List<Boolean> pieceDeployed = ImmutableList.<Boolean> of(
-				true, false, false, false, false, false, false, false,
+				true, true, false, false, false, false, false, false,
 				false, false, false, false, false, false, false, false);
-		verify(mockView, times(2)).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed);		// not clear*********************
+		Hashtable<Position, Piece> deployTable = new Hashtable<Position, Piece>();
+		deployTable.put(new Position(5, 1), myPieces.get(0));
+		deployTable.put(new Position(4, 1), myPieces.get(1));
+		verify(mockView, times(3)).chooseNextPieceToDeploy(myPieces, deployTable, ghostsState.getTurn(), pieceDeployed);		// not clear*********************
 		List<Position> possibleSquares = ImmutableList.<Position> of(
-				new Position(0, 1),
-				new Position(0, 2),
-				new Position(0, 3),
-				new Position(0, 4),
-				new Position(1, 1),
-				new Position(1, 2),
-				new Position(1, 3),
-				new Position(1, 4));
-		verify(mockView).chooseSquareToDeploy(possibleSquares);
+//				new Position(4, 1),
+				new Position(4, 2),
+				new Position(4, 3),
+				new Position(4, 4),
+//				new Position(5, 1),
+				new Position(5, 2),
+				new Position(5, 3),
+				new Position(5, 4));
+		verify(mockView, times(2)).chooseSquareToDeploy(possibleSquares);				// Something wrong!!!!!!!!!!*********************
+
+		
 //		pieceDeployed.set(0, true);
 //		verify(mockView).chooseNextPieceToDeploy(ImmutableList.<Piece>of(), pieceDeployed);
 	}
@@ -368,20 +410,16 @@ public class GhostsPresenterTest {
 				ImmutableMap.<Integer, Integer> of());
 	}
 	
-	private List<Piece> getPieces(int playerId, GhostsState ghostsState) {
+	/*
+	 * Return a List<Piece> form of piecelist, if not visible then it's null
+	 */
+	private List<Piece> getPiecesList(ImmutableList<Optional<Piece>> pieces) {
 		List<Piece> myPieces = Lists.newArrayList();
-		ImmutableList<Optional<Piece>> pieces = ghostsState.getPieces();
-		if (playerIds.indexOf(playerId) == 1) {
-			for (int i = 8; i < 16; i++) {
-				if (pieces.get(i).isPresent()) {
-					myPieces.add(pieces.get(i).get());
-				}
-			}
-		} else {
-			for (int i = 0; i < 8; i++) {
-				if (pieces.get(i).isPresent()) {
-					myPieces.add(pieces.get(i).get());
-				}
+		for (int i = 0; i < 16; i++) {
+			if (pieces.get(i).isPresent()) {
+				myPieces.add(pieces.get(i).get());
+			} else {
+				myPieces.add(null);
 			}
 		}
 		return myPieces;

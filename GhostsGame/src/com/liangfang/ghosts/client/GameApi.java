@@ -53,7 +53,7 @@ public final class GameApi {
       this.game = game;
       List<Integer> playerIds = Lists.newArrayList();
       for (int i = 0; i < numberOfPlayers; i++) {
-        int playerId = 23 + i;												// change 42 to 23, since in my game playerId starts from 23
+        int playerId = 23 + i;
         playerIds.add(playerId);
         playersInfo.add(ImmutableMap.<String, Object>of(PLAYER_ID, playerId));
       }

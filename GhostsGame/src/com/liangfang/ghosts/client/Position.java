@@ -27,7 +27,7 @@ public class Position {
 	/*
 	 * Determine whether position pos is exit for specific side
 	 */
-	public boolean isExitForWhite(Position pos) {
+/*	public boolean isExitForWhite(Position pos) {
 		return isExitForWhite(pos.getRow(), pos.getCol());
 	}
 
@@ -42,7 +42,7 @@ public class Position {
 	public boolean isExitForBlack(int row, int col) {
 		return (row == 0 && col == 0) || (row == 0 && col == 5);
 	}
-
+*/
 	public String toSquareString() {
 		return ("S" + row) + col;
 	}

@@ -40,7 +40,8 @@ public class GhostsLogic {
 
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
-			checkMoveIsLegal(verifyMove);
+//			if ()
+//			checkMoveIsLegal(verifyMove);
 			return new VerifyMoveDone();
 		} catch (Exception e) {
 			return new VerifyMoveDone(verifyMove.getLastMovePlayerId(),
@@ -168,26 +169,7 @@ public class GhostsLogic {
 		int whitePlayerId = playerIds.get(0);
 	    int blackPlayerId = playerIds.get(1);
 		check(lastMove.get(0).equals(new SetTurn(blackPlayerId)));		// next turn should be black deploy
-/*		
-		// check if white sets all 16 pieces: set(P0,"WGood"), ..., set(P15,"BEvil")
-		for (int i = 0; i < 16; i++) {
-			check(lastMove.get(i + 1).equals(new Set(P + i, pieceIdToString(i))));
-		}
 
-		// check shuffle(P0,...,P7) and shuffle(P8,...,P15)
-		check(lastMove.get(17).equals(new Shuffle(getPiecesInRange(0, 7))));
-		check(lastMove.get(18).equals(new Shuffle(getPiecesInRange(8, 15))));
-
-		// sets visibility
-		for (int i = 0; i < 8; i++) {
-			check(lastMove.get(i + 19).equals(new SetVisibility(P + i, ImmutableList
-					.of(whitePlayerId))));
-		}
-		for (int i = 8; i < 16; i++) {
-			check(lastMove.get(i + 19).equals(new SetVisibility(P + i, ImmutableList
-					.of(blackPlayerId))));
-		} 
-*/		
 		//check if white deploy his ghosts in valid way
 		ArrayList<String> squares = new ArrayList<String>();
 		ArrayList<String> pieces = new ArrayList<String>();
@@ -197,7 +179,7 @@ public class GhostsLogic {
 			squares.add(square);
 			pieces.add(piece);
 		}
-		for (int i = 0; i <= 1; i++) {
+		for (int i = 4; i <= 5; i++) {
 			for (int j = 1; j <=4; j++) {
 				check(squares.contains((S + i) + j), squares);
 			}
@@ -225,7 +207,7 @@ public class GhostsLogic {
 			squares.add(square);
 			pieces.add(piece);
 		}
-		for (int i = 4; i <= 5; i++) {
+		for (int i = 0; i <= 1; i++) {
 			for (int j = 1; j <=4; j++) {
 				check(squares.contains((S + i) + j), squares);
 			}
@@ -249,7 +231,7 @@ public class GhostsLogic {
 		operations.add(new Set(endSquare, movingPiece));
 		operations.add(new Delete(startSquare));
 		
-		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
+		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece    ***************when opposite verify, something wrong************  can use squares to get piecename and sort
 												//visible to all
 			if (pieces.get(i).isPresent()) {
 				operations.add(new SetVisibility(P + i));
@@ -302,7 +284,7 @@ public class GhostsLogic {
 		int row = (int) (endSquare.charAt(1) - '0');
 		int col = (int) (endSquare.charAt(2) - '0');
 		operations.add(new Delete(squares.get(new Position(row, col))));
-		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece 
+		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece   ***************when opposite verify, something wrong************  can use squares to get piecename and sort
 			 									//visible to all
 			if (pieces.get(i).isPresent()) {
 				operations.add(new SetVisibility(P + i));
@@ -326,7 +308,7 @@ public class GhostsLogic {
 	}
 
 	//Determine if player is moving a good ghost to his exit square
-	boolean isMovingGoodToExit(String movingPiece, String endSquare, GhostsState lastState) {
+	boolean isMovingGoodToExit(String movingPiece, String endSquare, GhostsState lastState) {			// opponent verify, will throw error since piece not visible, null**************************
 		Color turn = lastState.getTurn();
 		List<Optional<Piece>> pieces = lastState.getPieces();
 		int index = getIndexFromPieceName(movingPiece);
@@ -334,12 +316,12 @@ public class GhostsLogic {
 		char col = endSquare.charAt(2);
 		if (turn.isBlack()) {
 			String pieceKind = pieces.get(index).get().getPieceKind();
-			return pieceKind.charAt(1) == 'G' && ((row == '0' && col == '0') 
-													|| (row == '0' && col == '5'));
-		} else {
-			String pieceKind = pieces.get(index).get().getPieceKind();
 			return pieceKind.charAt(1) == 'G' && ((row == '5' && col == '0') 
 													|| (row == '5' && col == '5'));
+		} else {
+			String pieceKind = pieces.get(index).get().getPieceKind();
+			return pieceKind.charAt(1) == 'G' && ((row == '0' && col == '0') 
+													|| (row == '0' && col == '5'));
 		}
 	}
 
@@ -383,10 +365,10 @@ public class GhostsLogic {
 		Color turn = lastState.getTurn();
 		Map<Position, String> squares = lastState.getSquares();
 		List<Optional<Piece>> pieces = lastState.getPieces();
-		String downLeft = squares.get(new Position(0, 0));
-		String downRight = squares.get(new Position(0, 5));
-		String upLeft = squares.get(new Position(5, 0));
-		String upRight = squares.get(new Position(5, 5));
+		String downLeft = squares.get(new Position(5, 0));
+		String downRight = squares.get(new Position(5, 5));
+		String upLeft = squares.get(new Position(0, 0));
+		String upRight = squares.get(new Position(0, 5));
 
 		if (turn.isBlack()) {
 			if (downLeft != null) {
@@ -472,7 +454,7 @@ public class GhostsLogic {
 		int row = (int) (startSquare.charAt(1) - '0');
 		int col = (int) (startSquare.charAt(2) - '0');
 		String pieceStr = squares.get(new Position(row, col));
-		return movingPiece == pieceStr;
+		return (movingPiece.compareTo(pieceStr) == 0);
 	}
 
 	// Determine if player is moving a piece to capture his another piece

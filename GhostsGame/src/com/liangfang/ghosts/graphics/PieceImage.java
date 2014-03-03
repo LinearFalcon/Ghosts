@@ -11,22 +11,27 @@ import com.liangfang.ghosts.client.Piece;
 public final class PieceImage extends Equality {
 
 	enum PieceImageKind {
-		BACK, 			// cannot determine which kind of ghost it is
-		EMPTY, 
+		WHITEBACK, 			// cannot determine which kind of ghost it is
+		BLACKBACK, 			// cannot determine which kind of ghost it is
+//		EMPTY, 
 		FRONT, 			// can see ghost kind
 	}
 
 	public static class Factory {
-		public static PieceImage getEmpty() {
-			return new PieceImage(PieceImageKind.EMPTY, null);
+//		public static PieceImage getEmpty() {
+//			return new PieceImage(PieceImageKind.EMPTY, null);
+//		}
+
+		public static PieceImage getWhiteBackOfPieceImage() {
+			return new PieceImage(PieceImageKind.WHITEBACK, null);
+		}
+		
+		public static PieceImage getBlackBackOfPieceImage() {
+			return new PieceImage(PieceImageKind.BLACKBACK, null);
 		}
 
-		public static PieceImage getBackOfPieceImage() {
-			return new PieceImage(PieceImageKind.BACK, null);
-		}
-
-		public static PieceImage getFrontOfPieceImage() {
-			return new PieceImage(PieceImageKind.FRONT, null);
+		public static PieceImage getFrontOfPieceImage(Piece piece) {
+			return new PieceImage(PieceImageKind.FRONT, piece);
 		}
 	}
 
@@ -50,10 +55,12 @@ public final class PieceImage extends Equality {
 	@Override
 	public String toString() {
 		switch (kind) {
-		case BACK:
-			return "pieces/BACK.png";
-		case EMPTY:
-			return "pieces/empty.png";
+		case WHITEBACK:
+			return "pieces/WHITEBACK.png";
+		case BLACKBACK:
+			return "pieces/BLACKBACK.png";
+//		case EMPTY:
+//			return "pieces/empty.png";
 		case FRONT:
 			return "pieces/" + piece2str().toUpperCase() + ".png";
 

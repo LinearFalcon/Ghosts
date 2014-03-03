@@ -1,14 +1,17 @@
 package com.liangfang.ghosts.client;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.liangfang.ghosts.client.GameApi.Container;
+import com.liangfang.ghosts.client.GameApi.Delete;
 import com.liangfang.ghosts.client.GameApi.Operation;
 import com.liangfang.ghosts.client.GameApi.Set;
 import com.liangfang.ghosts.client.GameApi.SetTurn;
 import com.liangfang.ghosts.client.GameApi.UpdateUI;
 
+import com.google.appengine.labs.repackaged.com.google.common.collect.Maps;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -46,7 +49,7 @@ public class GhostsPresenter {
 		 * Sets the state for a player (whether the player has the turn or not).
 		 * pass only this player's own piece and entire squares
 		 */
-		void setPlayerState(List<Piece> pieces, Map<Position, String> squares);
+		void setPlayerState(List<Piece> pieces, Map<Position, String> squares, Color myColor, List<Boolean> pieceDeployed);
 
 		/**
 		 * Asks the player to choose the next piece to move. We pass what piece
@@ -57,8 +60,8 @@ public class GhostsPresenter {
 		 * remainingPieces, then selectedPiece clear and add this new piece.
 		 * selectedPieces can only have no more than one piece
 		 */
-		void chooseNextPieceToMove(List<Piece> selectedPiece,
-				List<Piece> remainingPiece);
+		void chooseNextPieceToMove(List<Piece> pieces, Map<Position, String> squares, Color turn);
+//				List<Piece> remainingPiece);
 
 		/**
 		 * After the player finished selecting a piece, the player needs to
@@ -69,8 +72,7 @@ public class GhostsPresenter {
 		/**
 		 * Asks the player to choose a piece to deploy
 		 */
-		void chooseNextPieceToDeploy(List<Piece> seletedPieceToDeploy,
-				List<Boolean> pieceDeployed);
+		void chooseNextPieceToDeploy(List<Piece> pieces, Map<Position, Piece> deployTable, Color turn, List<Boolean> pieceDeployed);
 		
 		/**
 		 * After the player finished deploy(by calling {@link #pieceSelectedToDeploy})
@@ -86,14 +88,31 @@ public class GhostsPresenter {
 	private GhostsState ghostsState;
 	private List<Piece> selectedPieceToMove;
 	private List<Piece> selectedPieceToDeploy;
-	private List<Boolean> pieceDeployed = Lists.newArrayList();
+	private final List<Boolean> pieceDeployed = Lists.newArrayList();
 	private List<Operation> deployOperations = Lists.newArrayList();			// Store deploy operations "Set(Sxx, Pxx)"
+	private final List<Position> wPossiblePositions = Lists.newArrayList();
+	private final List<Position> bPossiblePositions = Lists.newArrayList();
+	private final Map<Position, Piece> deployTable=new HashMap<Position, Piece>();		// final means when white finish deploying, deploytable will still keep his deploy info
 
 	
 	public GhostsPresenter(View view, Container container) {
 		this.view = view;
 		this.container = container;
 		view.setPresenter(this);
+		
+		for (int i = 0; i < 16; i++) {								// Initialize pieceDeployed
+			pieceDeployed.add(false);
+		}
+	    for (int i = 0; i < 2; i++) {								// Initialize possiblePositions for deploy phase
+			for (int j = 1; j < 5; j++) {
+				bPossiblePositions.add(new Position(i,j));
+			}
+	    }
+	    for (int i = 4; i < 6; i++) {
+			for (int j = 1; j < 5; j++) {
+				wPossiblePositions.add(new Position(i,j));
+			}
+	    }
 	}
 
 	/** Updates the presenter and the view with the state in updateUI. */
@@ -108,9 +127,8 @@ public class GhostsPresenter {
 //	    selectedPieceToDeploy = Lists.newArrayList();
 //		pieceDeployed = Lists.newArrayList();
 //		deployOperations = Lists.newArrayList();
-	    for (int i = 0; i < 16; i++) {								// Initialize pieceDeployed
-			pieceDeployed.add(false);
-		}
+//	    deployTable = new HashMap<Position, Piece>();
+	    
 	    
 	    if (updateUI.getState().isEmpty()) {						// Game board intialization
 	        
@@ -124,8 +142,12 @@ public class GhostsPresenter {
 	    	if (operation instanceof SetTurn) {
 	    		turnOfColor = Color.values()[playerIds.indexOf(((SetTurn) operation).getPlayerId())];
 	      }
-	    }	    
+	    }	
+	    
 	    ghostsState = ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), turnOfColor, playerIds);
+	    
+	    
+	    
 	    
 	    if (!ghostsState.isWhiteDeployed()) {						// The W player initialize board and deploy
 	    	if (myColor.isPresent() && myColor.get().isWhite()) {
@@ -149,7 +171,11 @@ public class GhostsPresenter {
 	        //container.sendMakeMove(..);
 	        return;
 	    }
-	    view.setPlayerState(getMyPieces(), ghostsState.getSquares());
+	    // Now must be a player not viewer
+
+//	    System.out.println(myColor.toString());		
+	    
+	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
 	    if (isMyTurn()) {
 	    	chooseNextPieceToMove();
@@ -157,13 +183,16 @@ public class GhostsPresenter {
 	}
 
 	private void chooseNextPieceToDeploy() {
-//		System.out.println(selectedPieceToDeploy + " " + pieceDeployed);							mock treat this call as same one
-		view.chooseNextPieceToDeploy(Lists.newArrayList(selectedPieceToDeploy), pieceDeployed);
+//		System.out.println(ghostsState.getSquares().toString());							
+//		view.chooseNextPieceToDeploy(Lists.newArrayList(selectedPieceToDeploy), pieceDeployed);
+//		view.chooseNextPieceToDeploy(getPiecesList(), ghostsState.getSquares(), ghostsState.getTurn(), pieceDeployed);	//before deploy finish, ghostsState squares are all null
+		view.chooseNextPieceToDeploy(getPiecesList(), deployTable, ghostsState.getTurn(), pieceDeployed);
 	}
 	
 	private void chooseNextPieceToMove() {
-		view.chooseNextPieceToMove(Lists.newArrayList(selectedPieceToMove),
-				ghostsLogic.subtract(getMyPieces(), selectedPieceToMove));
+//		view.chooseNextPieceToMove(Lists.newArrayList(selectedPieceToMove), getPiecesList(), ghostsState.getSquares(), ghostsState.getTurn());
+//				ghostsLogic.subtract(getMyPieces(), selectedPieceToMove));
+		view.chooseNextPieceToMove(getPiecesList(), ghostsState.getSquares(), myColor.get());	//change ghostsState.getTurn() to myColor************************
 	}
 
 	/**
@@ -177,7 +206,7 @@ public class GhostsPresenter {
 		} else {
 			check(piece.isBlackPiece());
 		}
-		if (selectedPieceToMove.contains(piece)) {
+		if (selectedPieceToMove.contains(piece)) {														// doesn't function: click one piece and click another piece*********************************
 			selectedPieceToMove.remove(piece);
 		} else if (!selectedPieceToMove.contains(piece) && selectedPieceToMove.size() < 1) {
 			selectedPieceToMove.add(piece);
@@ -198,6 +227,12 @@ public class GhostsPresenter {
 		movingPiece = p.getPieceName();
 		startSquare = getSquarePositionFromPieceName(movingPiece).toSquareString();
 		
+		System.out.println("movingPiece: " + movingPiece + " piecekind: " + p.getPieceKind());
+		System.out.println("start: " + startSquare + " end: " + endPosition.toSquareString());
+		System.out.println(ghostsLogic.getMove(movingPiece, startSquare, 
+				endPosition.toSquareString(), ghostsState).toString());
+		
+		
 		container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
 								endPosition.toSquareString(), ghostsState));
 	}
@@ -211,24 +246,53 @@ public class GhostsPresenter {
 			check(piece.isBlackPiece());
 		}
 		
-		if (selectedPieceToDeploy.contains(piece)) {
-			selectedPieceToDeploy.remove(piece);
-		} else if (!selectedPieceToDeploy.contains(piece) && selectedPieceToDeploy.size() < 1) {
+//		if (selectedPieceToDeploy.contains(piece)) {
+//			selectedPieceToDeploy.remove(piece);
+//		} else if (!selectedPieceToDeploy.contains(piece) && selectedPieceToDeploy.size() < 1) {
 			selectedPieceToDeploy.add(piece);
-		}
+//		}
 		check(!selectedPieceToDeploy.isEmpty());		// If already choose a piece, then can choose where to deploy
-//		System.out.println(getPossiblePositionsToDeploy());
-		view.chooseSquareToDeploy(getPossiblePositionsToDeploy());
+		
+		
+//		if (myColor.get().isWhite())																	//maybe piece.isWhitePiece...*************
+//			List<Position> possiblePositions = wPossiblePositions;
+//		else
+//			List<Position> possiblePositions = bPossiblePositions;
+		
+		if (myColor.get().isWhite()) {
+			view.chooseSquareToDeploy(wPossiblePositions);
+		}
+		else {
+			view.chooseSquareToDeploy(bPossiblePositions);
+		}
 	}
 	
 	public void squareSelectedToDeploy(Position deployPosition) {
-		check(isMyTurn() && !selectedPieceToDeploy.isEmpty()
-				&& getPossiblePositionsToDeploy().contains(deployPosition));
+		check(isMyTurn() && !selectedPieceToDeploy.isEmpty());
+		if (myColor.get().isWhite())
+			check(wPossiblePositions.contains(deployPosition));
+		else
+			check(bPossiblePositions.contains(deployPosition));
+		
 		Piece p = selectedPieceToDeploy.get(0);
 		deployOperations.add(new Set(deployPosition.toSquareString(), p.getPieceName()));
 //		System.out.println(ghostsLogic.getIndexFromPieceName(p.getPieceName()));
 		pieceDeployed.set(ghostsLogic.getIndexFromPieceName(p.getPieceName()), true);
-		selectedPieceToDeploy.clear();
+		selectedPieceToDeploy.clear();												//	during deploy, no move sent to server, so must clear
+		if (myColor.get().isWhite()) {
+//			System.out.println("---");
+//			for (Position ps : wPossiblePositions)
+//				System.out.println(ps.toSquareString());
+			wPossiblePositions.remove(deployPosition);
+		}
+		else {
+//			System.out.println("---");
+//			for (Position ps : bPossiblePositions)
+//				System.out.println(ps.toSquareString());
+			bPossiblePositions.remove(deployPosition);
+		}
+		
+		deployTable.put(deployPosition, p);
 		chooseNextPieceToDeploy();
 	}
 	
@@ -257,6 +321,7 @@ public class GhostsPresenter {
 		else
 			operations.add(new Set("BDeployed", "true"));
 		container.sendMakeMove(operations);
+		deployOperations.clear();
 	}
 	
 	
@@ -292,10 +357,10 @@ public class GhostsPresenter {
 	 * 1) on the right side
 	 * 2) not already deployed by a piece
 	 */
-	private List<Position> getPossiblePositionsToDeploy() {
+/*	private List<Position> getPossiblePositionsToDeploy() {
 		List<Position> possiblePositions = Lists.newArrayList();
 		Map<Position, String> squares = ghostsState.getSquares();
-		if (myColor.get().isWhite()) {					// check white side
+		if (myColor.get().isBlack()) {					// check black side
 			for (int i = 0; i < 2; i++) {
 				for (int j = 1; j < 5; j++) {
 					Position pos = new Position(i, j);
@@ -304,7 +369,7 @@ public class GhostsPresenter {
 					}
 				}
 			}
-		} else {										// check black side
+		} else {										// check white side
 			for (int i = 4; i < 6; i++) {
 				for (int j = 1; j < 5; j++) {
 					Position pos = new Position(i, j);
@@ -316,7 +381,7 @@ public class GhostsPresenter {
 		}
 		return possiblePositions;
 	}
-	
+*/	
 	private boolean isInsideBoard(Position p) {
 		int row = p.getRow();
 		int col = p.getCol();
@@ -338,20 +403,17 @@ public class GhostsPresenter {
 		return null;
 	}
 	
-	private List<Piece> getMyPieces() {
+	/*
+	 * Return a List<Piece> form of piecelist, if not visible then it's null
+	 */
+	private List<Piece> getPiecesList() {
 		List<Piece> myPieces = Lists.newArrayList();
 		ImmutableList<Optional<Piece>> pieces = ghostsState.getPieces();
-		if (myColor.get().isBlack()) {
-			for (int i = 8; i < 16; i++) {
-				if (pieces.get(i).isPresent()) {
-					myPieces.add(pieces.get(i).get());
-				}
-			}
-		} else {
-			for (int i = 0; i < 8; i++) {
-				if (pieces.get(i).isPresent()) {
-					myPieces.add(pieces.get(i).get());
-				}
+		for (int i = 0; i < 16; i++) {
+			if (pieces.get(i).isPresent()) {
+				myPieces.add(pieces.get(i).get());
+			} else {
+				myPieces.add(null);
 			}
 		}
 		return myPieces;

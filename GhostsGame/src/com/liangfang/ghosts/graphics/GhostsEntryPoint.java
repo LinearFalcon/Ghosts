@@ -15,6 +15,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 
+/**
+ * Entry point classes define <code>onModuleLoad()</code>.
+ */
 public class GhostsEntryPoint implements EntryPoint {
 	IteratingPlayerContainer container;
 	GhostsPresenter ghostsPresenter;
@@ -24,8 +27,7 @@ public class GhostsEntryPoint implements EntryPoint {
 		Game game = new Game() {
 			@Override
 			public void sendVerifyMove(VerifyMove verifyMove) {
-				container.sendVerifyMoveDone(new GhostsLogic()
-						.verify(verifyMove));
+				container.sendVerifyMoveDone(new GhostsLogic().verify(verifyMove));
 			}
 
 			@Override

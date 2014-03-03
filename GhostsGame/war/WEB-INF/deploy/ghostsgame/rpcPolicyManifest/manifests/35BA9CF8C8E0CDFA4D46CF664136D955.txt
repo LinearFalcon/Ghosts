@@ -1,2 +1,0 @@
-serviceClass: com.liangfang.ghosts.client.GreetingService
-path: 12B64AC7B28A5B41F49D8B09A05DD908.gwt.rpc

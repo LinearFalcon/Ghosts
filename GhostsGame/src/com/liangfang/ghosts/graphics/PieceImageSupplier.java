@@ -16,10 +16,12 @@ public class PieceImageSupplier {
 
 	public ImageResource getResource(PieceImage pieceImage) {
 		switch (pieceImage.kind) {
-		case BACK:
-			return getBackOfPieceImage();
-		case EMPTY:
-			return getEmpty();
+		case WHITEBACK:
+			return getWhiteBackOfPieceImage();
+		case BLACKBACK:
+			return getBlackBackOfPieceImage();
+//		case EMPTY:
+//			return getEmpty();
 		case FRONT:
 			return getFrontOfPieceImage(pieceImage.piece);
 		default:
@@ -28,6 +30,8 @@ public class PieceImageSupplier {
 	}
 
 	private ImageResource getFrontOfPieceImage(Piece piece) {
+//		System.out.println(piece.getPieceName());
+		
 		if (piece.getPieceKind() == "WGood" || piece.getPieceKind() == "BGood") {
 			return pieceImages.good();
 		} else if (piece.getPieceKind() == "WEvil" || piece.getPieceKind() == "BEvil") {
@@ -41,8 +45,11 @@ public class PieceImageSupplier {
 		return null;
 	}
 
-	private ImageResource getBackOfPieceImage() {
-		return pieceImages.back();
+	private ImageResource getWhiteBackOfPieceImage() {
+		return pieceImages.whiteback();
 	}
 
+	private ImageResource getBlackBackOfPieceImage() {
+		return pieceImages.blackback();
+	}
 }
