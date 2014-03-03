@@ -56,8 +56,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		initWidget(uiBinder.createAndBindUi(this));
 
 		gameGrid.resize(6, 6);
-//		gameGrid.setCellPadding(0);
-//		gameGrid.setCellSpacing(0);
 		gameGrid.setBorderWidth(1);
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 6; j++) {
@@ -100,7 +98,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 					int index = getIndexFromPieceName(squares.get(new Position(i, j)));
 					if (color.isWhite()) {
 						if (index < 8)
-							images[i][j] = PieceImage.Factory.getFrontOfPieceImage(pieces.get(index));			// no piece stored actually??????***********
+							images[i][j] = PieceImage.Factory.getFrontOfPieceImage(pieces.get(index));			
 						else
 							images[i][j] = PieceImage.Factory.getBlackBackOfPieceImage();	
 					} else {	
@@ -235,16 +233,16 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	    for (PieceImage img : images) {
 	      final PieceImage imgFinal = img;
 	      Image image = new Image(pieceImageSupplier.getResource(img));
-//	      if (withClick) {
+
 	      image.addClickHandler(new ClickHandler() {
 	    	  @Override
 	          public void onClick(ClickEvent event) {
-	    		  if (enableClicks) {													// Not sure this enableClicks**************
+	    		  if (enableClicks) {													// Not sure this enableClicks
 	    			  presenter.pieceSelectedToDeploy(imgFinal.piece);
 	    		  }
 	          }
 	      });
-//	      }
+
 	      res.add(image);
 	    }
 	    return res;
@@ -300,8 +298,8 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 
 	@Override
 	public void chooseNextPieceToMove(List<Piece> pieces, Map<Position, String> squares, Color turn) {		
-		enableClicks = true;													// here we need to add clickhandler to every current player's piece image
-		placeImagesOnGrid(gameGrid, createNormalPieces(pieces, squares, turn, true));		// this turn is myColor!!!*************
+		enableClicks = true;																// here we need to add clickhandler to every current player's piece image
+		placeImagesOnGrid(gameGrid, createNormalPieces(pieces, squares, turn, true));		// this turn is myColor
 		
 		
 	}
@@ -333,17 +331,11 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	@Override
 	public void chooseSquareToDeploy(List<Position> possiblePositions) {
 		final List<Position> pos = possiblePositions;
-//		System.out.println("---");
-//   	  for (Position ps : pos)
-//    		  System.out.println(ps.toSquareString());
     	  
 		gameGrid.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-		      	  Cell cell = ((HTMLTable)event.getSource()).getCellForEvent(event);
-		      	  
-//		      	  System.out.println(cell.getRowIndex() + " , " + cell.getCellIndex());
-		      	  
+		      	  Cell cell = ((HTMLTable)event.getSource()).getCellForEvent(event);		      	  
 		      	  Position p = new Position(cell.getRowIndex(), cell.getCellIndex());
 		      	  if (pos.contains(p))
 		      		  presenter.squareSelectedToDeploy(p);
@@ -351,7 +343,9 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		});
 	}
 
-	// return int value of the number after "P" in Px/xx
+	/*
+	 * return int value of the number after "P" in Px/xx
+	 */
 	int getIndexFromPieceName(String piecename) {
 		if (piecename.length() == 2)
 			return (int) (piecename.charAt(1) - '0');
@@ -361,6 +355,9 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		}
 	}
 	
+	/*
+	 * check if all player deploy finished
+	 */
 	boolean playerAllDeployed(Color turn, List<Boolean> pieceDeployed) {
 		if (turn.isWhite()) {
 			for (int i = 0; i < 8; i++) {

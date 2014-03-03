@@ -47,7 +47,6 @@ public class GhostsPresenter {
 
 		/**
 		 * Sets the state for a player (whether the player has the turn or not).
-		 * pass only this player's own piece and entire squares
 		 */
 		void setPlayerState(List<Piece> pieces, Map<Position, String> squares, Color myColor, List<Boolean> pieceDeployed);
 

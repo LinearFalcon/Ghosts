@@ -41,7 +41,7 @@ public class GhostsLogic {
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
 //			if ()
-//			checkMoveIsLegal(verifyMove);
+			checkMoveIsLegal(verifyMove);											// Need to be modified for opponent verify check!**************************
 			return new VerifyMoveDone();
 		} catch (Exception e) {
 			return new VerifyMoveDone(verifyMove.getLastMovePlayerId(),
