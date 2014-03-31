@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.RootPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class GhostsEntryPoint implements EntryPoint {
-	IteratingPlayerContainer container;
+	Container container;
 	GhostsPresenter ghostsPresenter;
 
 	@Override
@@ -33,10 +33,14 @@ public class GhostsEntryPoint implements EntryPoint {
 				ghostsPresenter.updateUI(updateUI);
 			}
 		};
-		container = new IteratingPlayerContainer(game, 2);
+		container = new ContainerConnector(game);
 		GhostsGraphics ghostsGraphics = new GhostsGraphics();
 		ghostsPresenter = new GhostsPresenter(ghostsGraphics, container);
-		final ListBox playerSelect = new ListBox();
+		
+		RootPanel.get("mainDiv").add(ghostsGraphics);
+		container.sendGameReady();
+		
+/*		final ListBox playerSelect = new ListBox();
 		playerSelect.addItem("WhitePlayer");
 		playerSelect.addItem("BlackPlayer");
 		playerSelect.addItem("Viewer");
@@ -55,6 +59,7 @@ public class GhostsEntryPoint implements EntryPoint {
 		RootPanel.get("mainDiv").add(flowPanel);
 		container.sendGameReady();
 		container.updateUi(container.getPlayerIds().get(0));
+*/
 	}
 
 }
