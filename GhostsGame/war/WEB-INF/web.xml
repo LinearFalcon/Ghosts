@@ -8,7 +8,7 @@
   <!-- Servlets -->
   <servlet>
     <servlet-name>greetServlet</servlet-name>
-    <servlet-class>com.liangfang.ghosts.server.GreetingServiceImpl</servlet-class>
+    <servlet-class>org.ghosts.server.GreetingServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
