@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="guava-16.0.jar" sourcepath="/Users/liangfang/.m2/repository/com/google/guava/guava/16.0/guava-16.0-sources.jar"/>
 	<classpathentry kind="lib" path="/Users/liangfang/Workspaces/MyEclipse 10/mockito-all-1.9.5.jar" sourcepath="/Users/liangfang/.m2/repository/org/mockito/mockito-all/1.9.5/mockito-all-1.9.5-sources.jar"/>
 	<classpathentry kind="lib" path="/Users/liangfang/Workspaces/MyEclipse 10/guava-gwt-16.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/liangfang/git/Ghosts/GhostsGame/gwt-dnd-3.3.0.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
