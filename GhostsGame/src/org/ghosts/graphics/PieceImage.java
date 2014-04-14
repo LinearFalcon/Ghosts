@@ -14,14 +14,17 @@ public final class PieceImage extends Equality {
 	enum PieceImageKind {
 		WHITEBACK, 			// cannot determine which kind of ghost it is
 		BLACKBACK, 			// cannot determine which kind of ghost it is
-//		EMPTY, 
+		BACKGROUND, 	
 		FRONT, 			// can see ghost kind
+		LEFTEXIT,
+		RIGHTEXIT,
+		DEPLOYPLACE,
 	}
 
 	public static class Factory {
-//		public static PieceImage getEmpty() {
-//			return new PieceImage(PieceImageKind.EMPTY, null);
-//		}
+		public static PieceImage getBackground() {
+			return new PieceImage(PieceImageKind.BACKGROUND, null);
+		}
 
 		public static PieceImage getWhiteBackOfPieceImage() {
 			return new PieceImage(PieceImageKind.WHITEBACK, null);
@@ -33,6 +36,18 @@ public final class PieceImage extends Equality {
 
 		public static PieceImage getFrontOfPieceImage(Piece piece) {
 			return new PieceImage(PieceImageKind.FRONT, piece);
+		}
+		
+		public static PieceImage getLeftExit() {
+			return new PieceImage(PieceImageKind.LEFTEXIT, null);
+		}
+		
+		public static PieceImage getRightExit() {
+			return new PieceImage(PieceImageKind.RIGHTEXIT, null);
+		}
+		
+		public static PieceImage getDeployPlace() {
+			return new PieceImage(PieceImageKind.DEPLOYPLACE, null);
 		}
 	}
 
@@ -60,8 +75,12 @@ public final class PieceImage extends Equality {
 			return "pieces/WHITEBACK.png";
 		case BLACKBACK:
 			return "pieces/BLACKBACK.png";
-//		case EMPTY:
-//			return "pieces/empty.png";
+		case BACKGROUND:
+			return "pieces/BACKGROUND.png";
+		case LEFTEXIT:
+			return "pieces/LEFTEXIT.png";
+		case RIGHTEXIT:
+			return "pieces/RIGHTEXIT.png";
 		case FRONT:
 			return "pieces/" + piece2str().toUpperCase() + ".png";
 

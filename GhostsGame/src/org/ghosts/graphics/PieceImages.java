@@ -15,4 +15,16 @@ public interface PieceImages extends ClientBundle {
 	
 	@Source("images/pieces/EVIL.png")
 	ImageResource evil();
+	
+	@Source("images/pieces/BACKROUND.png")
+	ImageResource backround();
+	
+	@Source("images/pieces/LEFTEXIT.png")
+	ImageResource leftexit();
+	
+	@Source("images/pieces/RIGHTEXIT.png")
+	ImageResource rightexit();
+	
+	@Source("images/pieces/DEPLOYPLACE.png")
+	ImageResource deployplace();
 }

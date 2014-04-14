@@ -21,18 +21,22 @@ public class PieceImageSupplier {
 			return getWhiteBackOfPieceImage();
 		case BLACKBACK:
 			return getBlackBackOfPieceImage();
-//		case EMPTY:
-//			return getEmpty();
+		case BACKGROUND:
+			return getBackground();
 		case FRONT:
 			return getFrontOfPieceImage(pieceImage.piece);
+		case LEFTEXIT:
+			return getLeftExit();
+		case RIGHTEXIT:
+			return getRightExit();
+		case DEPLOYPLACE:
+			return getDeployPlace();
 		default:
 			throw new RuntimeException("Forgot kind=" + pieceImage.kind);
 		}
 	}
 
-	private ImageResource getFrontOfPieceImage(Piece piece) {
-//		System.out.println(piece.getPieceName());
-		
+	private ImageResource getFrontOfPieceImage(Piece piece) {		
 		if (piece.getPieceKind() == "WGood" || piece.getPieceKind() == "BGood") {
 			return pieceImages.good();
 		} else if (piece.getPieceKind() == "WEvil" || piece.getPieceKind() == "BEvil") {
@@ -42,8 +46,8 @@ public class PieceImageSupplier {
 		}
 	}
 
-	private ImageResource getEmpty() {											// Don't know if we need empty ???*******************
-		return null;
+	private ImageResource getBackground() {											// Don't know if we need empty ???*******************
+		return pieceImages.backround();
 	}
 
 	private ImageResource getWhiteBackOfPieceImage() {
@@ -52,5 +56,17 @@ public class PieceImageSupplier {
 
 	private ImageResource getBlackBackOfPieceImage() {
 		return pieceImages.blackback();
+	}
+	
+	private ImageResource getRightExit() {
+		return pieceImages.rightexit();
+	}
+
+	private ImageResource getLeftExit() {
+		return pieceImages.leftexit();
+	}
+	
+	private ImageResource getDeployPlace() {
+		return pieceImages.deployplace();
 	}
 }

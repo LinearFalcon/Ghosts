@@ -405,6 +405,20 @@ public class GhostsPresenter {
 	    return this.ghostsState;
 	}
 	
+	/*
+	 * check if both player finish deployment
+	 */
+	public boolean isAllDeployed() {
+		return deployTable.size() == 16;
+	}
+	
+	public Color getMyColor() {
+		if (myColor.isPresent())
+			return myColor.get();
+		else
+			return null;
+	}
+	
 	private void sendBoardInitialMove(List<String> playerIds) {
 		container.sendMakeMove(ghostsLogic.getBoardInitialOperations(playerIds));
 	}

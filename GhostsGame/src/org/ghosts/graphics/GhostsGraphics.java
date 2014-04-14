@@ -46,12 +46,15 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	}
 
 	@UiField
+	AbsolutePanel playArea;
+	@UiField
 	Grid gameGrid;
 	@UiField
 	HorizontalPanel deploySelectArea;
 	@UiField
 	Button deployBtn;
 
+//	AbsolutePanel playArea = new AbsolutePanel();
 	private boolean enableClicks = false;
 	private final PieceImageSupplier pieceImageSupplier;
 	private GhostsPresenter presenter;
@@ -74,6 +77,10 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 				.create(GhostsGraphicsUiBinder.class);
 		initWidget(uiBinder.createAndBindUi(this));
 		initGrid();
+		
+		playArea.setPixelSize(620, 620);
+		playArea.add(gameGrid);
+		
 		if (Audio.isSupported()) {
 			pieceDown = Audio.createIfSupported();
 			pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri()
@@ -85,7 +92,8 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	}
 
 	/**
-	 * initialize the Grid
+	 * initialize the Grid, row number count from top to bottom: 0 ~ 5,
+	 * column number count from left to right: 0 ~ 5
 	 */
 	private void initGrid() {
 		gameGrid.resize(6, 6);
@@ -203,7 +211,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 			boolean withClick, Color turn) {
 		
 		// Initialize the drag controller
-	    dragCtrl = new GhostsDragController(RootPanel.get(), false, presenter);
+	    dragCtrl = new GhostsDragController(playArea, false, presenter);
 	    dragCtrl.setBehaviorConstrainedToBoundaryPanel(true);
 	    dragCtrl.setBehaviorMultipleSelection(false);
 	    dragCtrl.setBehaviorDragStartSensitivity(1);
@@ -253,24 +261,44 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		grid.clear();
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 6; j++) {
+				AbsolutePanel imageContainer = new AbsolutePanel();
+				imageContainer.setStyleName("imgContainer");
 				if (images[i][j] != null) { // means there is a piece on this        
 											// position, even empty, add a panel to myPanel
-					AbsolutePanel imageContainer = new AbsolutePanel();
-					
-					imageContainer.setStyleName("imgContainer");
 					imageContainer.add(images[i][j]);
-					
-					myPanel[i][j] = imageContainer;
-					myPanel[i][j].setPixelSize(96, 96);
-					
-					// just add Image to grid
-					grid.setWidget(i, j, myPanel[i][j]);
 
-				} else {
-					myPanel[i][j] = new AbsolutePanel();
-					myPanel[i][j].setPixelSize(96, 96);
-					grid.setWidget(i, j, myPanel[i][j]);
+				} else {					// add backround or exit image for rest of grids
+					Image img;
+					PieceImage pieceImage;
+					if (j == 0 && (i == 0 || i == 5)) {
+						pieceImage = PieceImage.Factory.getLeftExit();
+						img = new Image(pieceImageSupplier.getResource(pieceImage));
+					} else if (j == 5 && (i == 0 || i == 5)) {
+						pieceImage = PieceImage.Factory.getRightExit();
+						img = new Image(pieceImageSupplier.getResource(pieceImage));
+					} else {
+						if (presenter.isAllDeployed()) {
+							pieceImage = PieceImage.Factory.getBackground();
+						
+						} else {	// if player doesn't finish deployment, highligt the area to deploy
+							if ((i == 0 || i == 1) && (j >= 1 && j <= 4) && presenter.getMyColor() == Color.B) {
+								pieceImage = PieceImage.Factory.getDeployPlace();			
+							} else if ((i == 4 || i == 5) && (j >= 1 && j <= 4) && presenter.getMyColor() == Color.W) {
+								pieceImage = PieceImage.Factory.getDeployPlace();
+							} else {
+								pieceImage = PieceImage.Factory.getBackground();
+							}
+						}
+						img = new Image(pieceImageSupplier.getResource(pieceImage));
+					}
+					
+					imageContainer.add(img);
 				}
+				myPanel[i][j] = imageContainer;
+				myPanel[i][j].setPixelSize(96, 96);
+
+				// just add Image to grid
+				grid.setWidget(i, j, myPanel[i][j]);
 			}
 		}
 	}

@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-
+/*
 public class GhostsEntryPoint implements EntryPoint {
 	Container container;
 	GhostsPresenter ghostsPresenter;
@@ -43,8 +43,8 @@ public class GhostsEntryPoint implements EntryPoint {
 	}
 
 }
+*/
 
-/*
 public class GhostsEntryPoint implements EntryPoint {
 	IteratingPlayerContainer container;
 	GhostsPresenter ghostsPresenter;
@@ -87,4 +87,3 @@ public class GhostsEntryPoint implements EntryPoint {
 	}
 
 }
-*/
