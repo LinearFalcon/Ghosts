@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 
 public class GhostsPresenter {
 
@@ -122,7 +123,7 @@ public class GhostsPresenter {
 	    myColor = yourPlayerIndex == 0 ? Optional.of(Color.W)
 	        : yourPlayerIndex == 1 ? Optional.of(Color.B) : Optional.<Color>absent();
 	    selectedPieceToMove = Lists.newArrayList();
-	    selectedPieceToDeploy = Lists.newArrayList();    
+	    selectedPieceToDeploy = Lists.newArrayList();  
 	    
 	    if (updateUI.getState().isEmpty()) {						// Game board intialization
 	        
@@ -139,10 +140,7 @@ public class GhostsPresenter {
 	    }	
 	    
 	    ghostsState = ghostsLogic.gameApiStateToGhostsState(updateUI.getState(), turnOfColor, playerIds);
-	    
-	    
-	    
-	    
+    
 	    if (!ghostsState.isWhiteDeployed()) {						// The W player initialize board and deploy
 	    	if (myColor.isPresent() && myColor.get().isWhite()) {
 	        	chooseNextPieceToDeploy();
@@ -167,6 +165,13 @@ public class GhostsPresenter {
 	    }
 	    // Now must be a player not viewer	    
 	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
+	    
+	    // Check if game is already end by looking at lastMove
+	    List<Operation> lastmove = updateUI.getLastMove();
+	    if (lastmove.get(lastmove.size() - 1) instanceof EndGame) {
+	    	Window.alert("Game already end!");
+	    	return;
+	    }
 	    
 	    if (isMyTurn()) {
 	    	chooseNextPieceToMove();
