@@ -6,12 +6,9 @@ import java.util.Map;
 
 import org.game_api.GameApi.*;
 
-
-import com.google.appengine.labs.repackaged.com.google.common.collect.Maps;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 
 public class GhostsPresenter {
@@ -78,6 +75,11 @@ public class GhostsPresenter {
 		
 		
 		void animateMove(List<Piece> pieces, Map<Position, String> squares, Position startPos, Position endPos);
+
+		/*
+		 * update animate arguments in graphics so that we can 
+		 */
+		void setAnimateArgs(List<Piece> piecesList, Map<Position, String> squares, Position startPos, Position endPosition, boolean isDnd);
 	}
 
 	private final GhostsLogic ghostsLogic = new GhostsLogic();
@@ -163,6 +165,7 @@ public class GhostsPresenter {
 	        //container.sendMakeMove(..);
 	        return;
 	    }
+	 
 	    // Now must be a player not viewer	    
 	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
@@ -191,7 +194,7 @@ public class GhostsPresenter {
 	 * Adds/remove the piece from the {@link #selectedPieceToMove}, only one piece can be selected. The view can only
 	 * call this method if the presenter called {@link View#chooseNextPiece}.
 	 */
-	public void pieceSelectedToMove(Piece piece) {			 
+	public void pieceSelectedToMove(Piece piece) {		
 		check(isMyTurn());
 		if (myColor.get().isWhite()) {								
 			check(piece.isWhitePiece());
@@ -216,15 +219,30 @@ public class GhostsPresenter {
 				&& getPossiblePositionsToMove().contains(endPosition));
 		Piece p = selectedPieceToMove.get(0);
 		String movingPiece, startSquare;
+//		final Position endPos;
 		movingPiece = p.getPieceName();
 		startSquare = getSquarePositionFromPieceName(movingPiece).toSquareString();
 		Position startPos = getSquarePositionFromPieceName(movingPiece);
+//		endPos = endPosition;
+
+		view.setAnimateArgs(getPiecesList(), ghostsState.getSquares(), startPos, endPosition, isDnd);
+		container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
+				endPosition.toSquareString(), ghostsState));
+/*		Timer moveTimer = new Timer() {
+			@Override
+			public void run() {
+				container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
+						endPos.toSquareString(), ghostsState));
+			}	
+		};
 
 		if (!isDnd) {
 			view.animateMove(getPiecesList(), ghostsState.getSquares(), startPos, endPosition);			// call view.animateMove to display animation
+			moveTimer.schedule(1000);
+		} else {
+			moveTimer.schedule(0);
 		}
-		container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
-								endPosition.toSquareString(), ghostsState));
+*/
 	}
 	
 	

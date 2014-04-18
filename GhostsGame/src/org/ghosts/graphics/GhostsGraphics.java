@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.Timer;
 
 /**
  * Graphics for the game of ghosts.
@@ -66,6 +67,14 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	
 	private GhostsDragController dragCtrl;								// For Dnd use
 	private GhostsDropController target;								// For Dnd use
+	
+	// for animateMove use, will be updated by setAnimateArgs(...)
+	private List<Piece> animate_pieces;
+	private Map<Position, String> animate_squares;
+	private Position animate_startPos;
+	private Position animate_endPos;
+	private boolean animate_isDnd;
+	private boolean hasAnimation = false;
 	
 //	private static PieceImages pieceImages = GWT.create(PieceImages.class);
     private static GameSounds gameSounds = GWT.create(GameSounds.class);
@@ -387,23 +396,72 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	}
 
 	@Override
-	public void setViewerState(Map<Position, String> squares) {
-		placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
-		placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't
-																				// care about deploy panel
-		disableClicks();
+	public void setViewerState(final Map<Position, String> squares) {
+
+		Timer animationTimer = new Timer() { 
+		      public void run() {
+		    	  placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
+		  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
+		  		  disableClicks();
+		      }
+		}; 
+		
+		if (hasAnimation) {
+			animateMove(animate_pieces, animate_squares, animate_startPos, animate_endPos);
+			if (animate_isDnd) {
+//				animationTimer.schedule(0);
+				placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
+		  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
+		  		  disableClicks();
+			} else {
+				animationTimer.schedule(1000);
+			}
+			hasAnimation = false;
+		} else {
+//			animationTimer.schedule(0);
+			placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
+	  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
+	  		  disableClicks();
+		}
+		
 	}
 
 	@Override
-	public void setPlayerState(List<Piece> pieces,
-			Map<Position, String> squares, Color myColor,
-			List<Boolean> pieceDeployed) {
-		// System.out.println("setPlayerState called!");
-		placeImagesOnGrid(gameGrid,
-				createNormalPieces(pieces, squares, myColor, false));
-		placeImagesOnDeployPanel(deploySelectArea,
-				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
-		disableClicks();
+	public void setPlayerState(final List<Piece> pieces,
+			final Map<Position, String> squares, final Color myColor,
+			final List<Boolean> pieceDeployed) {
+		
+		Timer animationTimer = new Timer() { 
+		      public void run() {
+		    	  placeImagesOnGrid(gameGrid,
+		  				createNormalPieces(pieces, squares, myColor, false));
+		    	  placeImagesOnDeployPanel(deploySelectArea,
+		  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
+		  		  disableClicks();
+		      }
+		    }; 
+		
+		if (hasAnimation) {
+			animateMove(animate_pieces, animate_squares, animate_startPos, animate_endPos);
+			if (animate_isDnd) {
+//				animationTimer.schedule(0);
+				placeImagesOnGrid(gameGrid,
+		  				createNormalPieces(pieces, squares, myColor, false));
+		    	  placeImagesOnDeployPanel(deploySelectArea,
+		  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
+		  		  disableClicks();
+			} else {
+				animationTimer.schedule(1000);
+			}
+			hasAnimation = false;
+		} else {
+//			animationTimer.schedule(0);
+			placeImagesOnGrid(gameGrid,
+	  				createNormalPieces(pieces, squares, myColor, false));
+	    	  placeImagesOnDeployPanel(deploySelectArea,
+	  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
+	  		  disableClicks();
+		}
 	}
 
 	@Override
@@ -526,6 +584,18 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		animation = new PieceMovingAnimation(myPanel[sx][sy].getAbsoluteLeft(), myPanel[sx][sy].getAbsoluteTop(),
 				myPanel[ex][ey].getAbsoluteLeft(), myPanel[ex][ey].getAbsoluteTop(), startImage, isCapture ? pieceCaptured : pieceDown);
 		animation.run(1000);
+	}
+
+	@Override
+	public void setAnimateArgs(List<Piece> piecesList,
+			Map<Position, String> squares, Position startPos,
+			Position endPosition, boolean isDnd) {
+		animate_pieces = piecesList;
+		animate_squares = squares;
+		animate_startPos = startPos;
+		animate_endPos = endPosition;
+		animate_isDnd = isDnd;
+		hasAnimation = !isDnd;
 	}
 
 }
