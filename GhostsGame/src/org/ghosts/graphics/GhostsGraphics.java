@@ -55,7 +55,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	@UiField
 	Button deployBtn;
 
-//	AbsolutePanel playArea = new AbsolutePanel();
 	private boolean enableClicks = false;
 	private final PieceImageSupplier pieceImageSupplier;
 	private GhostsPresenter presenter;
