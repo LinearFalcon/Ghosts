@@ -92,11 +92,39 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		
 		if (Audio.isSupported()) {
 			pieceDown = Audio.createIfSupported();
-			pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri()
-					.asString(), AudioElement.TYPE_MP3);
+//			pieceDown.setControls(false);
+			
+/*			if (pieceDown.canPlayType(AudioElement.TYPE_WAV).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceDown.canPlayType(AudioElement.TYPE_WAV).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
+			} else if (pieceDown.canPlayType(AudioElement.TYPE_MP3).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceDown.canPlayType(AudioElement.TYPE_MP3).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+			} else if (pieceDown.canPlayType(AudioElement.TYPE_OGG).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceDown.canPlayType(AudioElement.TYPE_OGG).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceDown.addSource(gameSounds.pieceDownOgg().getSafeUri().asString(), AudioElement.TYPE_OGG);
+			}
+*/			
+			pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+			pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
+			
 			pieceCaptured = Audio.createIfSupported();
-			pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri()
-					.asString(), AudioElement.TYPE_MP3);
+/*			pieceCaptured.setControls(false);
+			
+			if (pieceCaptured.canPlayType(AudioElement.TYPE_WAV).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceCaptured.canPlayType(AudioElement.TYPE_WAV).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
+			} else if (pieceCaptured.canPlayType(AudioElement.TYPE_MP3).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceCaptured.canPlayType(AudioElement.TYPE_MP3).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+			} else if (pieceCaptured.canPlayType(AudioElement.TYPE_OGG).equals(AudioElement.CAN_PLAY_PROBABLY) ||
+					pieceCaptured.canPlayType(AudioElement.TYPE_OGG).equals(AudioElement.CAN_PLAY_MAYBE)) {
+				pieceCaptured.addSource(gameSounds.pieceCapturedOgg().getSafeUri().asString(), AudioElement.TYPE_OGG);
+			}
+			
+*/			
+			pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+			pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
 		}
 	}
 

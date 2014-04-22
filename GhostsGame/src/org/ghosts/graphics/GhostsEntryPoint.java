@@ -78,6 +78,7 @@ public class GhostsEntryPoint implements EntryPoint {
 				container.updateUi(playerId);
 			}
 		});
+		playerSelect.setSize("200px", "100px");
 		FlowPanel flowPanel = new FlowPanel();
 		flowPanel.add(ghostsGraphics);
 		flowPanel.add(playerSelect);

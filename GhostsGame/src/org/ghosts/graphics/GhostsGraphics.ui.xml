@@ -8,7 +8,7 @@
     </g:AbsolutePanel>
     <g:HorizontalPanel height="100px">
       <g:HorizontalPanel width="250" height="100px" ui:field="deploySelectArea"/>
-      <g:Button ui:field="deployBtn" text="Finish deploying pieces"/>
+      <g:Button ui:field="deployBtn" height="100px" text="Finish deploying pieces"/>
     </g:HorizontalPanel>
   </g:VerticalPanel>
 </ui:UiBinder> 
