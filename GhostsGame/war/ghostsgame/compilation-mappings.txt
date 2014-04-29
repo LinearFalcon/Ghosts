@@ -1,16 +1,101 @@
-23859FF226F6697AC54E33C209D1AFD8.cache.js
-user.agent ie8
-
-252B2F82FABA40666D76F95C51E7BD34.cache.js
-user.agent ie9
-
-6F0239D48ECF3F34DA5D2A5A9EA36C2D.cache.js
-user.agent gecko1_8
-
-835DC27EE63C5269B75BC2780D834660.cache.js
+0556A491C6ECEA41307DC4DA7BD92962.cache.js
+mgwt.os blackberry
+mobile.user.agent mobilesafari
 user.agent safari
 
-DD2FB2499BC4D4F46AC09D1CE446F57A.cache.js
+077344116CC79B2072598EC1E9C28960.cache.js
+mgwt.os ipad
+mobile.user.agent mobilesafari
+user.agent safari
+
+141A7823FFE661B7CC0F2A9AC9F7A5EC.cache.js
+mgwt.os android_tablet
+mobile.user.agent mobilesafari
+user.agent safari
+
+22A20D472247F2751E4ED30808846020.cache.js
+mgwt.os iphone
+mobile.user.agent not_mobile
+user.agent safari
+
+24176F1AABAD3B3C33B222A56511D4D2.cache.js
+mgwt.os desktop
+mobile.user.agent not_mobile
+user.agent ie9
+
+279C23C9A0B5B79243326510CCB99BCF.cache.js
+mgwt.os android
+mobile.user.agent not_mobile
+user.agent safari
+
+3DEB11F02D0F57F413ECD504E64242D1.cache.js
+mgwt.os android_tablet
+mobile.user.agent not_mobile
+user.agent safari
+
+621F2C3E21893566F344FDCB55353D98.cache.js
+mgwt.os desktop
+mobile.user.agent not_mobile
+user.agent safari
+
+6462F0EB49A2C2EA48DAFC9714F49198.cache.js
+mgwt.os desktop
+mobile.user.agent mobilesafari
+user.agent safari
+
+75156C19D534E24D90BDEFB2E3BBD04B.cache.js
+mgwt.os blackberry
+mobile.user.agent not_mobile
+user.agent safari
+
+8BC27861BF6092CC65FE896A409FA4FB.cache.js
+mgwt.os desktop
+mobile.user.agent not_mobile
+user.agent gecko1_8
+
+901B1E133D5A748E88D8650667990237.cache.js
+mgwt.os ipad_retina
+mobile.user.agent mobilesafari
+user.agent safari
+
+A459F0467FDFC78BC98719601D69ED20.cache.js
+mgwt.os ipad_retina
+mobile.user.agent not_mobile
+user.agent safari
+
+BB2ECE97B812A46DE541C2F104B12FD9.cache.js
+mgwt.os iphone
+mobile.user.agent mobilesafari
+user.agent safari
+
+BE8DE4FD93760C61539FCFFFF49568E8.cache.js
+mgwt.os retina
+mobile.user.agent not_mobile
+user.agent safari
+
+C3D9E7CB512D317B9FA06F22780C4647.cache.js
+mgwt.os ipad
+mobile.user.agent not_mobile
+user.agent safari
+
+DCAA8E50A0C123D038EEA8924AA63DC6.cache.js
+mgwt.os desktop
+mobile.user.agent not_mobile
 user.agent ie10
+
+E044DC07155BF5B60E5F573033D4D209.cache.js
+mgwt.os desktop
+mobile.user.agent not_mobile
+user.agent ie8
+
+F1AB618D0387FCAECFE13A1FF3CEAA27.cache.js
+mgwt.os retina
+mobile.user.agent mobilesafari
+user.agent safari
+
+FCD298F81C8D8469E5F421CB930C3D50.cache.js
+mgwt.os android
+mobile.user.agent mobilesafari
+user.agent safari
 
 Devmode:devmode.js

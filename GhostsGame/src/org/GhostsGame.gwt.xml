@@ -20,6 +20,7 @@
 
   <!-- Other module inherits                                      -->
 	<inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
+	<inherits name="com.googlecode.mgwt.MGWT"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.ghosts.graphics.GhostsEntryPoint'/>

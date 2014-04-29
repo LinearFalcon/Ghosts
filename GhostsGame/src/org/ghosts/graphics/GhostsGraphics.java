@@ -86,7 +86,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		initWidget(uiBinder.createAndBindUi(this));
 		initGrid();
 		
-		playArea.setPixelSize(620, 620);
+//		playArea.setPixelSize(620, 620);
 		playArea.add(gameGrid);
 		
 		if (Audio.isSupported()) {
@@ -136,8 +136,8 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		gameGrid.setBorderWidth(1);
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 6; j++) {
-				gameGrid.getCellFormatter().setWidth(i, j, "96px");
-				gameGrid.getCellFormatter().setHeight(i, j, "96px");
+//				gameGrid.getCellFormatter().setWidth(i, j, "96px");
+//				gameGrid.getCellFormatter().setHeight(i, j, "96px");
 			}
 		}
 	}
@@ -331,7 +331,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 					imageContainer.add(img);
 				}
 				myPanel[i][j] = imageContainer;
-				myPanel[i][j].setPixelSize(96, 96);
+//				myPanel[i][j].setPixelSize(96, 96);
 
 				// just add Image to grid
 				grid.setWidget(i, j, myPanel[i][j]);
@@ -608,8 +608,12 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		int ey = endPos.getCol();
 		boolean isCapture = (squares.get(endPos) == null) ? false : true;
 				
-		animation = new PieceMovingAnimation(myPanel[sx][sy].getAbsoluteLeft(), myPanel[sx][sy].getAbsoluteTop(),
-				myPanel[ex][ey].getAbsoluteLeft(), myPanel[ex][ey].getAbsoluteTop(), startImage, isCapture ? pieceCaptured : pieceDown);
+//	    animation = new PieceMovingAnimation(myPanel[sx][sy].getAbsoluteLeft(), myPanel[sx][sy].getAbsoluteTop(),
+//		myPanel[ex][ey].getAbsoluteLeft(), myPanel[ex][ey].getAbsoluteTop(), startImage, isCapture ? pieceCaptured : pieceDown);	
+		
+		// Because we make game to auto scale according to web explorer, so we cannot use absolute position to make animation
+		animation = new PieceMovingAnimation(startImage.getWidth() * sy, startImage.getHeight() * sx,		
+				startImage.getWidth() * ey, startImage.getHeight() * ex, startImage, isCapture ? pieceCaptured : pieceDown);
 		animation.run(1000);
 	}
 
