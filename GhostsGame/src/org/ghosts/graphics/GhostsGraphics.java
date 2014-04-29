@@ -104,8 +104,8 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 				pieceDown.addSource(gameSounds.pieceDownOgg().getSafeUri().asString(), AudioElement.TYPE_OGG);
 			}
 */			
-			pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
-			pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
+//			pieceDown.addSource(gameSounds.pieceDownMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+//			pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
 			
 			pieceCaptured = Audio.createIfSupported();
 /*			pieceCaptured.setControls(false);
@@ -122,8 +122,8 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 			}
 			
 */			
-			pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
-			pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
+//			pieceCaptured.addSource(gameSounds.pieceCapturedMp3().getSafeUri().asString(), AudioElement.TYPE_MP3);
+//			pieceCaptured.addSource(gameSounds.pieceCapturedWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
 		}
 	}
 
