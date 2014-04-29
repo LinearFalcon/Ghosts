@@ -108,6 +108,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 //			pieceDown.addSource(gameSounds.pieceDownWav().getSafeUri().asString(), AudioElement.TYPE_WAV);
 			
 			pieceCaptured = Audio.createIfSupported();
+			
 /*			pieceCaptured.setControls(false);
 			
 			if (pieceCaptured.canPlayType(AudioElement.TYPE_WAV).equals(AudioElement.CAN_PLAY_PROBABLY) ||
