@@ -53,6 +53,7 @@ public class Heuristic {
 	public int getStateValue(final GhostsState ghostsState) { 
 		int stateValue = 0;
 		List<Optional<Piece>> pieces = ghostsState.getPieces();
+		Map<Position, String> squares = ghostsState.getSquares();
 		
 		// The game is over
 	    if (hasGameEnded(ghostsState)) {
@@ -86,8 +87,24 @@ public class Heuristic {
 	    		}
 	    	}
 	    }
-	    stateValue = (numOfGoodForWhite - numOfGoodForBlack) * ValueOfWhiteGhost 
-	    		   + (numOfEvilForWhite - numOfEvilForBlack) * ValueOfBlackGhost;		
+	    int piecevalue = (numOfGoodForBlack - numOfGoodForWhite) * ValueOfWhiteGhost 
+	    		   + (numOfEvilForBlack - numOfEvilForWhite) * ValueOfBlackGhost;
+	    int blackExitValue = 0;
+	    int whiteExitValue = 0;
+	    for (int i = 0; i < 6; i++) {
+	    	for (int j = 0; j < 6; j++) {
+	    		String pieceStr = squares.get(new Position(i, j));
+	    		if (pieceStr != null) {
+	    			int index = stateExplorer.getIndexFromPieceName(pieceStr);
+	    			if (index >= 8) {
+	    				blackExitValue += i;
+	    			} else {
+	    				whiteExitValue += 5 - i;
+	    			}
+	    		}
+	    	}
+	    }
+	    stateValue = piecevalue * 1 + (blackExitValue - whiteExitValue) * 3;
 		return stateValue;
 	}
 	

@@ -12,6 +12,7 @@ import org.ghosts.ai.Heuristic;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gwt.user.client.Window;
 
 public class GhostsPresenter {
@@ -165,50 +166,33 @@ public class GhostsPresenter {
 	    	view.setViewerState(ghostsState.getSquares());
 	        return;
 	    }
-	    if (updateUI.isAiPlayer()) {							// temporarilly don't check if turn is AI(black), since view is changed automatically by emulator, so turn will be black
-	        if (!hasAiMakeMove) {
+	    // Now must be a player not viewer	    
+	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
+	    
+	    if (updateUI.isAiPlayer()) {							
+	        if (!hasAiMakeMove) {	       
+	    	    
 	        	hasAiMakeMove = true;
-	        	Heuristic heuristic = new Heuristic();	    
-	        	
-	        	GhostsState passState = new GhostsState(ghostsState.getTurn(), 
-	       			 ImmutableList.copyOf(ghostsState.getPlayerIds()), 
-	       			 ImmutableList.copyOf(ghostsState.getPieces()), 
-	       			 ghostsState.getSquares(), 
-	       			 ghostsState.isWhiteDeployed(), 
-	       			 ghostsState.isBlackDeployed());
-				
-		        AlphaBetaPruning ai = new AlphaBetaPruning(heuristic, passState);
+	        	Heuristic heuristic = new Heuristic();	          
+			
+		        AlphaBetaPruning ai = new AlphaBetaPruning(heuristic, ghostsState);
 		        
-		        // The move of the AI takes at most 0.5 second
-		        DateTimer timer = new DateTimer(500);
-		        
-		        for (int i = 0; i < 6; i++)
-		        	for(int j = 0; j < 6; j++)
-		        		System.out.println(("S"+ i) + j + ": " + ghostsState.getSquares().get(new Position(i, j)));
-		        System.out.println("above before findBestMove");
-		       
+		        // The move of the AI takes at most 5 second
+		        DateTimer timer = new DateTimer(5000);
+	       
 		        // The depth is 4 though due to the time limit, it may not reach that deep
-		        Move move = ai.findBestMove(4, timer);
-		        
-		        for (int i = 0; i < 6; i++)
-		        	for(int j = 0; j < 6; j++)
-		        		System.out.println(("S"+ i) + j + ": " + ghostsState.getSquares().get(new Position(i, j)));
+		        Move move = ai.findBestMove(100, timer);
 		        
 		        String startSquare = move.getStart().toSquareString();
 		        String endSquare = move.getDestination().toSquareString();
-		        String movingPiece = ghostsState.getSquares().get(move.getStart());							// movingPiece is null!!!!!!!!!!!!**************
-		        
-		        
-		        System.out.println("startSquare: " + startSquare + " endSquare: " + endSquare + " movingPiece: " + movingPiece);
-		        
+		        String movingPiece = ghostsState.getSquares().get(move.getStart());							
+
+		        view.setAnimateArgs(getPiecesList(), ghostsState.getSquares(), move.getStart(), move.getDestination(), false);
 		        container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
 		        		endSquare, ghostsState));
 		        return;
 	        }
-	    }
-	 
-	    // Now must be a player not viewer	    
-	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
+	    }	   
 	    
 	    // Check if game is already end by looking at lastMove                  						may put before AI player !!!!!!!!!!!!!!!!!!
 	    List<Operation> lastmove = updateUI.getLastMove();

@@ -30,6 +30,7 @@ import java.util.Random;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.ghosts.client.Color;
 import org.ghosts.client.GhostsState;
@@ -70,21 +71,21 @@ public class AlphaBetaPruning {
     }
   }
 
-  public AlphaBetaPruning(Heuristic heuristic, GhostsState localstate) {
+  public AlphaBetaPruning(Heuristic heuristic, GhostsState ghostsState) {
     this.heuristic = heuristic;
-/*    this.state = new GhostsState(ghostsState.getTurn(), 
-    							 ImmutableList.copyOf(ghostsState.getPlayerIds()), 
-    							 ImmutableList.copyOf(ghostsState.getPieces()), 
-    							 ghostsState.getSquares(), 
-    							 ghostsState.isWhiteDeployed(), 
-    							 ghostsState.isBlackDeployed());
-    							 */
-    this.AIGuessState = getAIGuessState(new GhostsState(localstate.getTurn(), 
-			 								ImmutableList.copyOf(localstate.getPlayerIds()), 
-			 								ImmutableList.copyOf(localstate.getPieces()), 
-			 								localstate.getSquares(), 
-			 								localstate.isWhiteDeployed(), 
-			 								localstate.isBlackDeployed()));
+
+    // We have to avoid shallow copy, if just use new GhostsState(...), the original ghostsState will be moddified!
+    Map<Position, String> newSquares = Maps.newHashMap();
+	for (Position p : ghostsState.getSquares().keySet())
+		newSquares.put(p, ghostsState.getSquares().get(p));
+	
+	
+    this.AIGuessState = getAIGuessState(new GhostsState(ghostsState.getTurn(), 
+			 								ImmutableList.copyOf(ghostsState.getPlayerIds()), 
+			 								ImmutableList.copyOf(ghostsState.getPieces()), 
+			 								newSquares, 
+			 								ghostsState.isWhiteDeployed(), 
+			 								ghostsState.isBlackDeployed()));
 
 //    this.AIGuessState = getAIGuessState(ghostsState);
   }
