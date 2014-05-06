@@ -199,7 +199,7 @@ public class GhostsPresenter {
 	    // Check if game is already end by looking at lastMove                  						may put before AI player !!!!!!!!!!!!!!!!!!
 	    List<Operation> lastmove = updateUI.getLastMove();
 	    if (lastmove.get(lastmove.size() - 1) instanceof EndGame) {
-//	    	Window.alert("Game already end!");
+	    	Window.alert("Game already end!");
 	    	return;
 	    }
 	    

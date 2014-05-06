@@ -27,6 +27,18 @@ Bugs:
 2, Sound cannot play on mobile
 3, Popup error on the first move, but later move is ok
 
+4.0
+HW10: AI
+Site：http://10-pc-dot-ghosts-game.appspot.com/
+Play with emulator： http://smg-gwt-emulator.appspot.com/GwtEmulator.html
+
+For mobile, plyease use http://10-mobile-dot-ghosts-game.appspot.com/
+
+Bugs:
+1, No animation within GWT-emulator, but you can see it on angularJS emulator (http://smg-angularjs-emulator.appspot.com/) using site: http://10-angularjs-dot-ghosts-game.appspot.com/
+
+2, No sound on mobile
+
 Instruction
 ————————
 Game should be player on emulator
