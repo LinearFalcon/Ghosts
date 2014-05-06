@@ -161,24 +161,23 @@ public class GhostsPresenter {
 	        return;
 	    }
 	    
-	    
 	    if (updateUI.isViewer()) {
 	    	view.setViewerState(ghostsState.getSquares());
 	        return;
 	    }
-	    // Now must be a player not viewer	    
-	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
+//	    if (!hasAiMakeMove)
+//	    	view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
+
 	    if (updateUI.isAiPlayer()) {							
-	        if (!hasAiMakeMove) {	       
-	    	    
+	        if (!hasAiMakeMove) {	       	        	
 	        	hasAiMakeMove = true;
 	        	Heuristic heuristic = new Heuristic();	          
 			
 		        AlphaBetaPruning ai = new AlphaBetaPruning(heuristic, ghostsState);
 		        
 		        // The move of the AI takes at most 5 second
-		        DateTimer timer = new DateTimer(5000);
+		        DateTimer timer = new DateTimer(2500);
 	       
 		        // The depth is 4 though due to the time limit, it may not reach that deep
 		        Move move = ai.findBestMove(100, timer);
@@ -193,6 +192,9 @@ public class GhostsPresenter {
 		        return;
 	        }
 	    }	   
+	    // Now must be a player not viewer	
+	    if (!hasAiMakeMove)
+	    	view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
 	    // Check if game is already end by looking at lastMove                  						may put before AI player !!!!!!!!!!!!!!!!!!
 	    List<Operation> lastmove = updateUI.getLastMove();
@@ -205,8 +207,6 @@ public class GhostsPresenter {
 	    	hasAiMakeMove = false;
 	    	chooseNextPieceToMove();
 	    }
-	    
-	    
 	}
 
 	private void chooseNextPieceToDeploy() {

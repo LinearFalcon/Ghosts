@@ -26,10 +26,10 @@ public class GhostsLogic {
 	private static final String S = "S"; // Square key (S00...S55)
 	private static final String WDeployed = "WDeployed"; // white deploy key
 	private static final String BDeployed = "BDeployed"; // black deploy key
-	private final String wId = "1";
-	private final String bId = "0";
-	private final ImmutableList<String> visibleToW = ImmutableList.of(wId);
-	private final ImmutableList<String> visibleToB = ImmutableList.of(bId);
+//	private final String wId = "1";
+//	private final String bId = "0";
+//	private final ImmutableList<String> visibleToW = ImmutableList.of(wId);
+//	private final ImmutableList<String> visibleToB = ImmutableList.of(bId);
 
 	public VerifyMoveDone verify(VerifyMove verifyMove) {
 		try {
@@ -230,9 +230,9 @@ public class GhostsLogic {
 			}
 		}
 		if (turn.isBlack())
-			operations.add(new EndGame(bId));
+			operations.add(new EndGame(lastState.getPlayerId(Color.B)));
 		else
-			operations.add(new EndGame(wId));
+			operations.add(new EndGame(lastState.getPlayerId(Color.W)));
 		
 		return operations;
 	}
@@ -283,10 +283,15 @@ public class GhostsLogic {
 			}
 		}
 		
-		if (turn.isBlack())
+/*		if (turn.isBlack())
 			operations.add(new EndGame(bId));
 		else
 			operations.add(new EndGame(wId));
+*/
+		if (turn.isBlack())
+			operations.add(new EndGame(lastState.getPlayerId(Color.B)));
+		else
+			operations.add(new EndGame(lastState.getPlayerId(Color.W)));
 		return operations;
 	}
 
