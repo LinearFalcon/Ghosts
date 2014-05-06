@@ -272,14 +272,7 @@ public class AlphaBetaPruning {
 			
 		  newPieces.add(Optional.fromNullable(piece));
 	  }
-	  // if it is a capture move, modify pieces
-/*	  if (endPieceStr != null) {		
-		  int index = heuristic.stateExplorer.getIndexFromPieceName(endPieceStr);
-//		  Piece piece = null;
-//		  pieces.set(index, Optional.fromNullable(piece));	
-		  
-	  }
-*/
+	  
 	  // modify squares, Map will just replace value with the same input key
 	  squares.put(startPos, null);
 	  squares.put(endPos, startPieceStr);

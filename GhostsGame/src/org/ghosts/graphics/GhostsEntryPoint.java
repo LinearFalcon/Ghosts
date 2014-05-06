@@ -23,6 +23,7 @@ import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 
+// Entry Point code for game playing in GWT-emulator
 
 public class GhostsEntryPoint implements EntryPoint {
 	Container container;
@@ -51,51 +52,7 @@ public class GhostsEntryPoint implements EntryPoint {
 
 }
 
-/*
-public class GhostsEntryPoint implements EntryPoint {
-	IteratingPlayerContainer container;
-	GhostsPresenter ghostsPresenter;
 
-	@Override
-	public void onModuleLoad() {
-		Game game = new Game() {
-			@Override
-			public void sendVerifyMove(VerifyMove verifyMove) {
-				container.sendVerifyMoveDone(new GhostsLogic().verify(verifyMove));
-			}
-
-			@Override
-			public void sendUpdateUI(UpdateUI updateUI) {
-				ghostsPresenter.updateUI(updateUI);
-			}
-		};
-		container = new IteratingPlayerContainer(game, 2);
-		GhostsGraphics ghostsGraphics = new GhostsGraphics();
-		ghostsPresenter = new GhostsPresenter(ghostsGraphics, container);
-		final ListBox playerSelect = new ListBox();
-		playerSelect.addItem("WhitePlayer");
-		playerSelect.addItem("BlackPlayer");
-		playerSelect.addItem("Viewer");
-		playerSelect.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				int selectedIndex = playerSelect.getSelectedIndex();
-				String playerId = selectedIndex == 2 ? GameApi.VIEWER_ID
-						: container.getPlayerIds().get(selectedIndex);
-				container.updateUi(playerId);
-			}
-		});
-		playerSelect.setSize("200px", "100px");
-		FlowPanel flowPanel = new FlowPanel();
-		flowPanel.add(ghostsGraphics);
-		flowPanel.add(playerSelect);
-		RootPanel.get("mainDiv").add(flowPanel);
-		container.sendGameReady();
-		container.updateUi(container.getPlayerIds().get(0));
-	}
-
-}
-*/
 /*
 // Test entry point without emulator, thanks for Youlong Li and Lisa Luo's code
 public class GhostsEntryPoint implements EntryPoint {

@@ -192,11 +192,15 @@ public class GhostsPresenter {
 		        return;
 	        }
 	    }	   
-	    // Now must be a player not viewer	
+	    
+	    /* Now must be a player not viewer
+	     * Here if we don't check if hasAiMakeMove, there will be problem in GWT-emulator
+	     * If just run program locally, we can remove 'if (!hasAiMakeMove)'	
+	     */
 	    if (!hasAiMakeMove)
 	    	view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
-	    // Check if game is already end by looking at lastMove                  						may put before AI player !!!!!!!!!!!!!!!!!!
+	    // Check if game is already end by looking at lastMove                  						
 	    List<Operation> lastmove = updateUI.getLastMove();
 	    if (lastmove.get(lastmove.size() - 1) instanceof EndGame) {
 	    	Window.alert("Game already end!");
@@ -301,6 +305,7 @@ public class GhostsPresenter {
 		
 		deployTable.put(deployPosition, p);
 		
+		// We have animateMove called during setPlayerState and setViewerState
 //		view.animateMove(getPiecesList(), ghostsState.getSquares(), startPos, deployPosition);	
 		
 		chooseNextPieceToDeploy();
@@ -362,36 +367,6 @@ public class GhostsPresenter {
 		return possiblePositions;
 	}
 	
-	/**
-	 * Return possible position to deploy, each position is
-	 * 1) on the right side
-	 * 2) not already deployed by a piece
-	 */
-/*	private List<Position> getPossiblePositionsToDeploy() {
-		List<Position> possiblePositions = Lists.newArrayList();
-		Map<Position, String> squares = ghostsState.getSquares();
-		if (myColor.get().isBlack()) {					// check black side
-			for (int i = 0; i < 2; i++) {
-				for (int j = 1; j < 5; j++) {
-					Position pos = new Position(i, j);
-					if (squares.get(pos) == null) {		// null means not deployed by others
-						possiblePositions.add(pos);
-					}
-				}
-			}
-		} else {										// check white side
-			for (int i = 4; i < 6; i++) {
-				for (int j = 1; j < 5; j++) {
-					Position pos = new Position(i, j);
-					if (squares.get(pos) == null) {		// null means not deployed by others
-						possiblePositions.add(pos);
-					}
-				}
-			}
-		}
-		return possiblePositions;
-	}
-*/	
 	private boolean isInsideBoard(Position p) {
 		int row = p.getRow();
 		int col = p.getCol();
