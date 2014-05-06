@@ -248,10 +248,10 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 			boolean withClick, Color turn) {
 		
 		// Initialize the drag controller
-	    dragCtrl = new GhostsDragController(playArea, false, presenter);
-	    dragCtrl.setBehaviorConstrainedToBoundaryPanel(true);
-	    dragCtrl.setBehaviorMultipleSelection(false);
-	    dragCtrl.setBehaviorDragStartSensitivity(1);
+//	    dragCtrl = new GhostsDragController(playArea, false, presenter);
+//	    dragCtrl.setBehaviorConstrainedToBoundaryPanel(true);
+//	    dragCtrl.setBehaviorMultipleSelection(false);
+//	    dragCtrl.setBehaviorDragStartSensitivity(1);
 		
 		Image[][] res = new Image[6][6];
 		for (int i = 0; i < 6; i++) {
@@ -277,7 +277,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 							});
 							
 							// make current player's piece dragable
-							dragCtrl.makeDraggable(image);		
+//							dragCtrl.makeDraggable(image);		
 						}
 					}
 
@@ -521,7 +521,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 			
 		// Add all position to drop controller, then inside GhostsDropController we will determine
 		// if this move is valid
-		Map<Position, String> squares = presenter.getState().getSquares();
+/*		Map<Position, String> squares = presenter.getState().getSquares();
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 6; j++) {
 				Position p = new Position(i, j);
@@ -530,6 +530,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 				dragCtrl.registerDropController(target);
 			}
 		}
+*/
 	}
 
 	@Override
@@ -554,7 +555,7 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 			public void onClick(ClickEvent event) {
 				Cell cell = ((HTMLTable) event.getSource())
 						.getCellForEvent(event);
-				Position p = new Position(cell.getRowIndex(), cell
+				Position p = new Position(cell.getRowIndex(), cell										// will throw null pointer exception, don't know why?????????????*****************
 						.getCellIndex());
 				if (pos.contains(p)) {
 					presenter.squareSelectedToDeploy(p);

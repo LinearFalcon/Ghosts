@@ -23,7 +23,7 @@ import com.googlecode.mgwt.dom.client.event.tap.TapHandler;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 
-
+/*
 public class GhostsEntryPoint implements EntryPoint {
 	Container container;
 	GhostsPresenter ghostsPresenter;
@@ -50,7 +50,7 @@ public class GhostsEntryPoint implements EntryPoint {
 	}
 
 }
-
+*/
 /*
 public class GhostsEntryPoint implements EntryPoint {
 	IteratingPlayerContainer container;
@@ -96,7 +96,7 @@ public class GhostsEntryPoint implements EntryPoint {
 
 }
 */
-/*
+
 // Test entry point without emulator, thanks for Youlong Li and Lisa Luo's code
 public class GhostsEntryPoint implements EntryPoint {
 	IteratingPlayerContainer container;
@@ -173,4 +173,3 @@ public class GhostsEntryPoint implements EntryPoint {
 	}
 
 }
-*/

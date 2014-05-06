@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.game_api.GameApi.*;
+import org.ghosts.ai.AlphaBetaPruning;
+import org.ghosts.ai.DateTimer;
+import org.ghosts.ai.Heuristic;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -87,6 +90,7 @@ public class GhostsPresenter {
 	private final Container container;
 	/** A viewer doesn't have a color. */
 	private Optional<Color> myColor;
+	private boolean hasAiMakeMove = true;
 	private GhostsState ghostsState;
 	private List<Piece> selectedPieceToMove;
 	private List<Piece> selectedPieceToDeploy;
@@ -149,36 +153,76 @@ public class GhostsPresenter {
 	        }
 	        return;
 	        
-	    } else if (!ghostsState.isBlackDeployed()) {				// The B player start to deploy
+	    } else if (!ghostsState.isBlackDeployed()) {				// The B player start to deploy         If updateUI.isAiPlayer(), random deploy!!!!****************(unfinished)
 	    	if (myColor.isPresent() && myColor.get().isBlack()) {
 	        	chooseNextPieceToDeploy();
 	        }
 	        return;
 	    }
 	    
+	    
 	    if (updateUI.isViewer()) {
 	    	view.setViewerState(ghostsState.getSquares());
 	        return;
 	    }
-	    if (updateUI.isAiPlayer()) {
-	        // TODO: implement AI in a later HW!
-	        //container.sendMakeMove(..);
-	        return;
+	    if (updateUI.isAiPlayer()) {							// temporarilly don't check if turn is AI(black), since view is changed automatically by emulator, so turn will be black
+	        if (!hasAiMakeMove) {
+	        	hasAiMakeMove = true;
+	        	Heuristic heuristic = new Heuristic();	    
+	        	
+	        	GhostsState passState = new GhostsState(ghostsState.getTurn(), 
+	       			 ImmutableList.copyOf(ghostsState.getPlayerIds()), 
+	       			 ImmutableList.copyOf(ghostsState.getPieces()), 
+	       			 ghostsState.getSquares(), 
+	       			 ghostsState.isWhiteDeployed(), 
+	       			 ghostsState.isBlackDeployed());
+				
+		        AlphaBetaPruning ai = new AlphaBetaPruning(heuristic, passState);
+		        
+		        // The move of the AI takes at most 0.5 second
+		        DateTimer timer = new DateTimer(500);
+		        
+		        for (int i = 0; i < 6; i++)
+		        	for(int j = 0; j < 6; j++)
+		        		System.out.println(("S"+ i) + j + ": " + ghostsState.getSquares().get(new Position(i, j)));
+		        System.out.println("above before findBestMove");
+		       
+		        // The depth is 4 though due to the time limit, it may not reach that deep
+		        Move move = ai.findBestMove(4, timer);
+		        
+		        for (int i = 0; i < 6; i++)
+		        	for(int j = 0; j < 6; j++)
+		        		System.out.println(("S"+ i) + j + ": " + ghostsState.getSquares().get(new Position(i, j)));
+		        
+		        String startSquare = move.getStart().toSquareString();
+		        String endSquare = move.getDestination().toSquareString();
+		        String movingPiece = ghostsState.getSquares().get(move.getStart());							// movingPiece is null!!!!!!!!!!!!**************
+		        
+		        
+		        System.out.println("startSquare: " + startSquare + " endSquare: " + endSquare + " movingPiece: " + movingPiece);
+		        
+		        container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
+		        		endSquare, ghostsState));
+		        return;
+	        }
 	    }
 	 
 	    // Now must be a player not viewer	    
 	    view.setPlayerState(getPiecesList(), ghostsState.getSquares(), myColor.get(), pieceDeployed);
 	    
-	    // Check if game is already end by looking at lastMove
+	    // Check if game is already end by looking at lastMove                  						may put before AI player !!!!!!!!!!!!!!!!!!
 	    List<Operation> lastmove = updateUI.getLastMove();
 	    if (lastmove.get(lastmove.size() - 1) instanceof EndGame) {
-	    	Window.alert("Game already end!");
+//	    	Window.alert("Game already end!");
 	    	return;
 	    }
 	    
 	    if (isMyTurn()) {
+	    	hasAiMakeMove = false;
 	    	chooseNextPieceToMove();
 	    }
+	    
+	    
 	}
 
 	private void chooseNextPieceToDeploy() {
@@ -219,30 +263,13 @@ public class GhostsPresenter {
 				&& getPossiblePositionsToMove().contains(endPosition));
 		Piece p = selectedPieceToMove.get(0);
 		String movingPiece, startSquare;
-//		final Position endPos;
 		movingPiece = p.getPieceName();
 		startSquare = getSquarePositionFromPieceName(movingPiece).toSquareString();
 		Position startPos = getSquarePositionFromPieceName(movingPiece);
-//		endPos = endPosition;
 
 		view.setAnimateArgs(getPiecesList(), ghostsState.getSquares(), startPos, endPosition, isDnd);
 		container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
 				endPosition.toSquareString(), ghostsState));
-/*		Timer moveTimer = new Timer() {
-			@Override
-			public void run() {
-				container.sendMakeMove(ghostsLogic.getMove(movingPiece, startSquare, 
-						endPos.toSquareString(), ghostsState));
-			}	
-		};
-
-		if (!isDnd) {
-			view.animateMove(getPiecesList(), ghostsState.getSquares(), startPos, endPosition);			// call view.animateMove to display animation
-			moveTimer.schedule(1000);
-		} else {
-			moveTimer.schedule(0);
-		}
-*/
 	}
 	
 	

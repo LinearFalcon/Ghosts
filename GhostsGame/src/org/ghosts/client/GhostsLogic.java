@@ -26,8 +26,8 @@ public class GhostsLogic {
 	private static final String S = "S"; // Square key (S00...S55)
 	private static final String WDeployed = "WDeployed"; // white deploy key
 	private static final String BDeployed = "BDeployed"; // black deploy key
-	private final String wId = "42";
-	private final String bId = "43";
+	private final String wId = "1";
+	private final String bId = "0";
 	private final ImmutableList<String> visibleToW = ImmutableList.of(wId);
 	private final ImmutableList<String> visibleToB = ImmutableList.of(bId);
 
@@ -276,7 +276,7 @@ public class GhostsLogic {
 		int row = (int) (endSquare.charAt(1) - '0');
 		int col = (int) (endSquare.charAt(2) - '0');
 		operations.add(new Delete(squares.get(new Position(row, col))));
-		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece   ***************when opposite verify, something wrong************  can use squares to get piecename and sort
+		for (int i = 0; i < 16; i++) {   		//examine P0 to P15 and set winner's piece  
 			 									//visible to all
 			if (pieces.get(i).isPresent()) {
 				operations.add(new SetVisibility(P + i));

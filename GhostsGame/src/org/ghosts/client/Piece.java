@@ -5,8 +5,8 @@ package org.ghosts.client;
 //import com.google.common.base.Objects;
 
 public class Piece extends Equality {
-	private String pieceKind;
-	private String pieceName;
+	private String pieceKind;	// "WGood" or "WEvil" or "BGood" or "BEvil"
+	private String pieceName;	// "P0" ~ "P15"
 
 	public Piece(String kind, String name) {
 		this.pieceKind = kind;
