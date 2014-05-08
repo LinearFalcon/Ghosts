@@ -3,6 +3,7 @@ package org.ghosts.client;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.game_api.GameApi.*;
 import org.ghosts.ai.AlphaBetaPruning;
@@ -156,7 +157,11 @@ public class GhostsPresenter {
 	        
 	    } else if (!ghostsState.isBlackDeployed()) {				// The B player start to deploy         If updateUI.isAiPlayer(), random deploy!!!!****************(unfinished)
 	    	if (myColor.isPresent() && myColor.get().isBlack()) {
-	        	chooseNextPieceToDeploy();
+	        	if (updateUI.isAiPlayer()) {						// If it's AI's turn to deploy, we just randomly deploy all pieces
+	        		aiDeploy();
+	        	} else {
+	        		chooseNextPieceToDeploy();
+	        	}
 	        }
 	        return;
 	    }
@@ -272,8 +277,9 @@ public class GhostsPresenter {
 //		if (selectedPieceToDeploy.contains(piece)) {
 //			selectedPieceToDeploy.remove(piece);
 //		} else if (!selectedPieceToDeploy.contains(piece) && selectedPieceToDeploy.size() < 1) {
-			selectedPieceToDeploy.add(piece);
+//			selectedPieceToDeploy.add(piece);
 //		}
+		selectedPieceToDeploy.add(piece);
 		check(!selectedPieceToDeploy.isEmpty());		// If already choose a piece, then can choose where to deploy
 
 		
@@ -309,6 +315,31 @@ public class GhostsPresenter {
 //		view.animateMove(getPiecesList(), ghostsState.getSquares(), startPos, deployPosition);	
 		
 		chooseNextPieceToDeploy();
+	}
+	
+	// AI player randomly deploy all pieces and make game ready  (deploy P8~P15 on S01~S04 and S11~S14) 
+	public void aiDeploy() {
+		int[] randomIndex = {8, 9, 10, 11, 12, 13, 14, 15};
+		
+		// random shuffle this array to get random deploy order
+		Random rnd = new Random();
+		for (int i = 0; i < randomIndex.length; i++) {
+			int pos = rnd.nextInt(randomIndex.length);
+			int temp = randomIndex[i];
+			randomIndex[i] = randomIndex[pos];
+			randomIndex[pos] = temp;
+		}
+		
+		int count = 0;
+		for (int i = 0; i <=1; i++) {
+			for (int j = 1; j <=4; j++) {
+				deployOperations.add(new Set(("S" + i) + j, "P" + randomIndex[count]));
+				pieceDeployed.set(randomIndex[count], true);
+				count++;
+			}
+		}
+		
+		deployFinished();
 	}
 	
 	public void deployFinished() {
