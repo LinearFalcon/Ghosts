@@ -52,8 +52,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	Grid gameGrid;
 	@UiField
 	HorizontalPanel deploySelectArea;
-	@UiField
-	Button deployBtn;
 
 	private boolean enableClicks = false;
 	private final PieceImageSupplier pieceImageSupplier;
@@ -404,20 +402,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		}
 	}
 
-	private void disableClicks() {
-		deployBtn.setEnabled(false);
-		enableClicks = false;
-	}
-
-	/*
-	 * Deploy Finish Button click handler
-	 */
-	@UiHandler("deployBtn")
-	void onClickDeployBtn(ClickEvent e) {
-		disableClicks();
-		presenter.deployFinished();
-	}
-
 	@Override
 	public void setPresenter(GhostsPresenter ghostsPresenter) {
 		this.presenter = ghostsPresenter;
@@ -430,7 +414,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		      public void run() {
 		    	  placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
 		  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
-		  		  disableClicks();
 		      }
 		}; 
 		
@@ -440,7 +423,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 //				animationTimer.schedule(0);
 				placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
 		  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
-		  		  disableClicks();
 			} else {
 				animationTimer.schedule(1000);
 			}
@@ -449,7 +431,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 //			animationTimer.schedule(0);
 			placeImagesOnGrid(gameGrid, createAllBackPieces(squares));
 	  		  placeImagesOnDeployPanel(deploySelectArea, ImmutableList.<Image> of()); // For viewer, we don't care about deploy panel
-	  		  disableClicks();
 		}
 		
 	}
@@ -465,7 +446,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		  				createNormalPieces(pieces, squares, myColor, false));
 		    	  placeImagesOnDeployPanel(deploySelectArea,
 		  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
-		  		  disableClicks();
 		      }
 		    }; 
 		
@@ -477,7 +457,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 		  				createNormalPieces(pieces, squares, myColor, false));
 		    	  placeImagesOnDeployPanel(deploySelectArea,
 		  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
-		  		  disableClicks();
 			} else {
 				animationTimer.schedule(1000);
 			}
@@ -488,7 +467,6 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 	  				createNormalPieces(pieces, squares, myColor, false));
 	    	  placeImagesOnDeployPanel(deploySelectArea,
 	  				createRemainingPiecesToDeploy(pieces, pieceDeployed, myColor));
-	  		  disableClicks();
 		}
 	}
 
@@ -542,8 +520,10 @@ public class GhostsGraphics extends Composite implements GhostsPresenter.View {
 				createDeployedPieces(deployTable, turn, false));
 		placeImagesOnDeployPanel(deploySelectArea,
 				createRemainingPiecesToDeploy(pieces, pieceDeployed, turn));
-		deployBtn.setEnabled(playerAllDeployed(turn, pieceDeployed));
-
+		
+		if (playerAllDeployed(turn, pieceDeployed)) {
+			presenter.deployFinished();
+		}
 	}
 
 	@Override
