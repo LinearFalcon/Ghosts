@@ -39,8 +39,19 @@ Bugs:
 
 2, No sound on mobile
 
+5.0
+Final fix: Remove “Deploy Finish” button; Make AI deploy by itself
+Game URL: http://12-emulator-dot-ghosts-game.appspot.com/
+Emulator URL: http://smg-gwt-emulator.appspot.com/GwtEmulator.html
+
+Bugs:
+No animation, you can see move animation by visiting: http://12-noemulator-dot-ghosts-game.appspot.com/
+
 Instruction
 ————————
-Game should be player on emulator
+Please play game within GWT-Emulator
+Paste game site
+For playing with AI: Choose ‘Single Player’ and ‘AI Present’
+For 2 players play: Do not choose ‘Single Player’ and ‘AI Present’
 
 
